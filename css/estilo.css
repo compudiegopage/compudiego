@@ -1,38 +1,355 @@
-body {
+@font-face {
+  font-family: Sonic;
+  src: url('../Sonic.otf');
+}
+@media (max-width:600px){
+    .mini{
+        display: none;
+        position: relative;		
 
-  /* Ubicación de la imagen */
-  
-  background-image: url(../img/construccion.jpg);
-  
-  /* Para dejar la imagen de fondo centrada, vertical y
-  
-  horizontalmente */
-  
-  background-position: center center;
-  
-  /* Para que la imagen de fondo no se repita */
-  
-  background-repeat: no-repeat;
-  
-  /* La imagen se fija en la ventana de visualización para que la altura de la imagen no supere a la del contenido */
-  
-  background-attachment: fixed;
-  
-  /* La imagen de fondo se reescala automáticamente con el cambio del ancho de ventana del navegador */
-  
-  background-size: cover;
-  
-  /* Se muestra un color de fondo mientras se está cargando la imagen
-  
-  de fondo o si hay problemas para cargarla */
-  
-  background-color: #fff;
-  
-  }
-  @media only screen and (max-width: 767px) {
-
-    body {
-    
-    background-image: url(../img/mobile.jpg);
-    
     }
+
+}
+@media (min-width: 601px){
+    .grande{
+        display: none;
+        position: relative;		
+
+    }
+}
+
+.centrado{
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+#solInf{
+  top: 2.5em;
+  left: 50%;
+  font-size: 50px;
+}
+#textGral{
+  top: 7em;
+  left: 50%;
+  font-size:30px;
+}
+#contact{
+  top: 20em;
+  left: 43%;
+}
+#moreInfo{
+  top: 20em;
+  left: 57%;
+}
+
+.marginUlhome{
+  margin-left:20%; 
+  
+}
+.title{
+  font-family:'Sonic';
+  color:#fff;
+  font-size: 330%;
+  
+}
+.title2{
+  font-family:'Sonic';
+  color:red;
+  font-size: 330%;
+  -webkit-text-stroke: 1px #fff;
+  
+}
+.title:hover{
+  color:black;
+  -webkit-text-stroke: 1px #fff;
+
+}
+.title2:hover{
+  color:black;
+  
+}
+#textNav{
+  color:#fff;
+  font-family: 'arial';
+}
+#textNav:hover{
+  color:black;
+  -webkit-text-stroke: 2px #fff;
+
+}
+
+.items{
+  font-size: 120%;
+}
+.cuerpo {
+  
+  position: relative;
+  display: inline-block;
+  text-align: center;
+
+  }
+  #home{
+    background-image: url(../img/fondoHead.jpg);
+    width: 100%;
+    height: auto;
+    
+  }
+  #imgHome{
+    width: 100%;
+  }
+
+  
+  @media only screen and (max-width: 767px) {
+    .cuerpo {
+      position: absolute;
+      display: inline-block;
+      text-align: center;
+    }
+
+    #home{
+      background-image: url(../img/fondoHead.jpg);
+      width: 100%;
+      height: auto;
+      padding-top: 4%;
+    }
+    .title{
+      font-family:'Sonic';
+      color:#fff;
+      font-size: 250%;
+      
+    }
+    .title2{
+      font-family:'Sonic';
+      color:red;
+      font-size: 250%;
+      -webkit-text-stroke: 1px #fff;
+    }
+    .marginUlhome{
+      margin-left:auto; 
+    }
+    .centrado{
+      position:absolute;
+      transform: translate(-50%, -50%);
+    }
+    #solInf{
+      top: 20%;
+      font-size:30px;
+      left: 50%;
+      white-space: pre;
+
+    }
+    #textGral{
+      display: none;
+    }
+    #textGral1{
+      top: 34%;
+      font-size: large;
+      left: 50%;
+      white-space:nowrap;
+    }
+    #textGral2{
+      top: 44%;
+      font-size: large;
+      left: 50%;
+      white-space:nowrap;
+    }
+    #textGral3{
+      top: 54%;
+      font-size: large;
+      left: 50%;
+      white-space:nowrap;
+    }
+    #contact{
+      top: 70%;
+      left: 50%;
+    }
+    #moreInfo{
+      top: 85%;
+      left: 50%;
+    }
+
+    
+   }
+   @media (min-width:768px) and (max-width:1012px) {
+
+    
+.centrado{
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+#solInf{
+  top: 1.5em;
+  left: 50%;
+  font-size: 40px;
+  white-space: pre;
+
+}
+#textGral{
+  top: 7em;
+  left: 50%;
+  font-size:20px;
+}
+#contact{
+  top: 14em;
+  left: 40%;
+}
+#moreInfo{
+  top: 14em;
+  left: 60%;
+}
+
+.marginUlhome{
+  margin-left:20%; 
+  
+}
+.title{
+  font-family:'Sonic';
+  color:#fff;
+  font-size: 330%;
+  
+}
+.title2{
+  font-family:'Sonic';
+  color:red;
+  font-size: 330%;
+  -webkit-text-stroke: 1px #fff;
+  
+}
+.title:hover{
+  color:black;
+  -webkit-text-stroke: 1px #fff;
+
+}
+.title2:hover{
+  color:black;
+  
+}
+#textNav{
+  color:#fff;
+  font-family: 'arial';
+}
+#textNav:hover{
+  color:black;
+  -webkit-text-stroke: 2px #fff;
+
+}
+
+.items{
+  font-size: 120%;
+}
+.cuerpo {
+  
+  position: relative;
+  display: inline-block;
+  text-align: center;
+
+  }
+  #home{
+    background-image: url(../img/fondoHead.jpg);
+    width: 100%;
+    height: auto;
+    
+  }
+  #imgHome{
+    width: 100%;
+  }
+  #textGral1, #textGral2, #textGral3 {
+    display: none;
+  }
+    
+   }
+   @media (min-width:1013px) and (max-width:1200px) {
+
+    
+    
+.centrado{
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+#solInf{
+  top: 1.5em;
+  left: 50%;
+  font-size: 40px;
+  white-space: pre;
+
+}
+#textGral{
+  top: 7em;
+  left: 50%;
+  font-size:20px;
+}
+#contact{
+  top: 14em;
+  left: 40%;
+}
+#moreInfo{
+  top: 14em;
+  left: 60%;
+}
+
+.marginUlhome{
+  margin-left:20%; 
+  
+}
+.title{
+  font-family:'Sonic';
+  color:#fff;
+  font-size: 330%;
+  
+}
+.title2{
+  font-family:'Sonic';
+  color:red;
+  font-size: 330%;
+  -webkit-text-stroke: 1px #fff;
+  
+}
+.title:hover{
+  color:black;
+  -webkit-text-stroke: 1px #fff;
+
+}
+.title2:hover{
+  color:black;
+  
+}
+#textNav{
+  color:#fff;
+  font-family: 'arial';
+}
+#textNav:hover{
+  color:black;
+  -webkit-text-stroke: 2px #fff;
+
+}
+
+.items{
+  font-size: 120%;
+}
+.cuerpo {
+  
+  position: relative;
+  display: inline-block;
+  text-align: center;
+
+  }
+  #home{
+    background-image: url(../img/fondoHead.jpg);
+    width: 100%;
+    height: auto;
+    
+  }
+  #imgHome{
+    width: 100%;
+  }
+  #textGral1, #textGral2, #textGral3 {
+    display: none;
+  }
+   }
+
+   @media (min-width:1201px){
+    #textGral1, #textGral2, #textGral3 {
+      display: none;
+    }
+   }
+
+   
