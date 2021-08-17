@@ -203,6 +203,11 @@ display: none;
       top: 85%;
       left: 50%;
     }
+    .wsp{
+      display: none;
+      position:fixed;
+
+    }
 
     
    }
@@ -346,9 +351,18 @@ display: none;
   #textGral1, #textGral2, #textGral3 {
     display: none;
   }
+
     
    }
   @media (min-width:1013px) and (max-width:1200px) {
+    .btn-wsp{
+      position:fixed;
+      width:60px;
+      height:60px;
+      line-height: 63px;
+      bottom:35px;
+      right:40px;
+  }
 
   .grande{
     display: none;
