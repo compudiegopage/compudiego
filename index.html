@@ -102,6 +102,28 @@
 
   </div>
   
-    
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+  
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOoiijfHGXIuZ5uYzbyL4-BkOgbp-dO58",
+      authDomain: "compudiegopage.firebaseapp.com",
+      projectId: "compudiegopage",
+      storageBucket: "compudiegopage.appspot.com",
+      messagingSenderId: "294790280990",
+      appId: "1:294790280990:web:a1bcf94d1f6014d4dd3b0f",
+      measurementId: "G-BECVH7TMPW"
+    };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+  </script>
 </body>
 </html>
