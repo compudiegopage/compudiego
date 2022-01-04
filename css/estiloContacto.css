@@ -1,0 +1,86 @@
+.contact{
+    color:black;
+    display: flex;    
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+.item5{
+    border: black 2px solid;
+    margin-bottom: 10px;
+    font-family: 'MADE TOMMY';
+    font-size: 100%;
+    width: 15em;
+    color: black;
+}
+.item3{
+    border: black 2px solid;
+    margin-bottom: 10px;
+    font-family: 'MADE TOMMY';
+    font-size: 100%;
+    padding-top: 0%;
+}
+
+.item2{
+    border: black 2px solid;
+    margin-bottom: 10px;
+    font-family: 'MADE TOMMY';
+    font-size: 100%;
+    text-align: left;
+}
+@media (max-width:600px){
+    .mini{
+        display: none;
+    }
+
+}
+@media (min-width: 601px){
+    .grande{
+        display: none;
+    }
+}
+.compu{
+    font-size: 80%;
+    font-family: arial;
+    color:white;
+}
+.compu:hover{
+    color:black;
+
+}
+.loader {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: block;
+    margin:5px ;
+    position: relative;
+    color: black;
+    box-sizing: border-box;
+    animation: animloader 2s linear infinite;
+  }
+  
+  @keyframes animloader {
+    0% {
+      box-shadow: 14px 0 0 -2px,  38px 0 0 -2px,  -14px 0 0 -2px,  -38px 0 0 -2px;
+    }
+    25% {
+      box-shadow: 14px 0 0 -2px,  38px 0 0 -2px,  -14px 0 0 -2px,  -38px 0 0 2px;
+    }
+    50% {
+      box-shadow: 14px 0 0 -2px,  38px 0 0 -2px,  -14px 0 0 2px,  -38px 0 0 -2px;
+    }
+    75% {
+      box-shadow: 14px 0 0 2px,  38px 0 0 -2px,  -14px 0 0 -2px,  -38px 0 0 -2px;
+    }
+    100% {
+      box-shadow: 14px 0 0 -2px,  38px 0 0 2px,  -14px 0 0 -2px,  -38px 0 0 -2px;
+    }
+  }
+  .btn-wsp{
+    position:fixed;
+    width:50px;
+    height:50px;
+    line-height: 63px;
+    bottom:25px;
+    right:40px;
+}

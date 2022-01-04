@@ -7,16 +7,20 @@
     <meta name="google-site-verification" content="j_NL5KpjpNJOE6ZXEvU1eGasNvFW72zCklJGk72wzog" />
     <link rel="stylesheet" href="css/estilo.css">
     <link rel="stylesheet" href="css/estiloMapa.css">
+    <link rel="stylesheet" href="css/estiloContacto.css">
 
     <link rel="icon" type="image/png" href="img/favicon.jfif" sizes="32x32">  
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
     <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="js/funciones.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.min.js">
+    </script>
+    <script src="https://cdn.emailjs.com/dist/email.min.js" type="text/javascript">
+    </script>
   
     <title>CompuDiego</title>
 </head>
@@ -25,8 +29,8 @@
     <div id="home">
         <div id="navbar">
             <nav class="navbar navbar-expand-sm navbar-dark " >  
-                <a class="title" href="#">COMPU</a>  
-                <a class="title2" href="#">DIEGO</a>            
+                <a class="title" href="index.html">COMPU</a>  
+                <a class="title2" href="index.html">DIEGO</a>            
                 <button class="navbar-toggler" style="margin-left:auto;" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon ">
                     </span>
@@ -40,7 +44,7 @@
                             <a class="nav-link" id="textNav" href="construccion.html">Nuestros Servicios</a>
                         </li>   
                         <li class="nav-item items">
-                            <a class="nav-link" id="textNav" href="https://wa.me/message/FBPBMY76C2HQI1" target="_blank">Contacto</a>
+                            <a class="nav-link" id="textNav" href="contacto.html">Contacto</a>
                         </li> 
                     </ul>
                     <a class="navbar-brand" href="https://www.instagram.com/compu.diego/?hl=es" target="_blank">
@@ -56,17 +60,112 @@
 
     <div class="cuerpo">
         <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3276.223958303548!2d-58.23616243476505!3d-34.800306980409005!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95a329a239e820c5%3A0xe3440485a77f5508!2sCompudiego!5e0!3m2!1ses-419!2sar!4v1641263419365!5m2!1ses-419!2sar" width="1600" height="400" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+        <a href="https://wa.me/message/FBPBMY76C2HQI1" class="btn-wsp" target="_blank">
+            <img class="img-fluid wsp" src="https://lirp.cdn-website.com/edead8f2/dms3rep/multi/opt/whatsapp_icon-960w.png" alt="">
+        </a>
     </div>
+    <div id="contacto">
+        <hr class="ahr"> 
+    
 
+        
+        <div class="contact" >
+            <div>
+                <h4>Contactanos</h3>
+                    <hr class="hrC" width="20%" align="left">
+                <p><b>Dirección</b></p>
+                <p>Calle 202 N°252, Sourigues, Berazategui, Buenos Aires</p>
+                <p><b>Celular</b></p>
+                <p>1150186664</p>
+                <p><b>Email</b></p>
+                <p>Compudiego@live.com</p>
+                <p><b>Horario de Atención</b></p>
+                <p>Lunes a Sábados de 10hs a 20hs</p>
 
+        
+                
+            </div>
+            <div id="app">
+                <p><b>Completá el formulario y te responderemos a la brevedad.</b></p>
 
-  <div class="servicios">
-
-  </div>
+                    <input type="text" id="name" class="item5" v-model="from_name" placeholder="Nombre*" require ><br>
+                    <div id="name"></div>
+                    <input type="email" id="email" class="item5" v-model="from_email" placeholder="Email*" require><br>
+                    <div id="mail"></div>
+                    <div id="mail2"></div>
+                    <input type="text" class="item5" v-model="from_telefono" placeholder="Teléfono"><br>
+                    <textarea name="consulta" class="item5" v-model="message" placeholder="Consulta" rows="5" style="resize: both"></textarea><br>
+                    <div id="loader2"></div>
+                    <button class="item2" @click="enviar()">Enviar</button>
+                    <div id="enviado"></div>
+    
+            </div>
+            
+        </div>
 
   <div class="footer">
 
   </div>
   
 </body>
+<script>
+    (function(){
+        emailjs.init("user_zvPgswpqpKo2IR2La6D3l");
+     })();
+     document.getElementById('loader2').innerHTML = " ";
+     document.getElementById('enviado').innerHTML = " ";
+     document.getElementById('name').innerHTML = " ";
+     document.getElementById('mail').innerHTML = " ";
+     document.getElementById('mail2').innerHTML = " ";
+
+        const vue = new Vue({
+            el: '#app',
+            data(){
+                return {
+                    from_name: '',
+                    from_email: '',
+                    from_telefono: '',
+                    message: ''
+                }
+            },
+            methods: {
+
+                enviar(){
+
+                    let data = {
+                        from_name: this.from_name,
+                        from_email: this.from_email,
+                        from_telefono: this.from_telefono,
+                        message: this.message,
+                    };
+                    
+                    expresion = /\w+@+\w+\.+[a-z]/;
+
+                    if(data.from_email === "" || data.from_name === "" ){
+                        enviado.innerHTML = "<div>Los campos * son obligatorios</div>"
+                    }
+                    else if(!expresion.test(data.from_email)){
+                        enviado.innerHTML = "<div>Email incorrecto</div>"
+                    }
+                    else{
+                        loader2.innerHTML = "<div class='loader'></div>";
+
+                        emailjs.send("service_iyucybu","template_0l94eqw", data)
+                        .then(function(response) {
+                            loader2.innerHTML = "<div class='loader' style='display:none;'></div>";
+
+                            if(response.text === 'OK'){
+                                enviado.innerHTML = "<div>Mensaje Enviado</div>"
+                            }
+                        console.log("SUCCESS. status=%d, text=%s", response.status, response.text);
+                        }, function(err) {
+                            enviado.innerHTML = "<div>Mensaje NO Enviado</div>"
+                        console.log("FAILED. error=", err);
+                        }); 
+                    }
+                }
+            }
+        });
+    
+</script>
 </html>
