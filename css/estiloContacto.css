@@ -1,13 +1,30 @@
-.contact{
+
+.contact2{
     color:black;
     display: flex;    
     flex-wrap: wrap;
     justify-content: space-around;
+    padding-left: 2%;
 }
+#inputs {
+  padding: 25px;
+  background: #fff;
+  box-shadow: 
+      0px 0px 0px 5px rgba( 255,255,255,0.4 ), 
+      0px 4px 20px rgba( 0,0,0,0.33 );
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 11px;
+  display: table;
+  position: static;
+
+}
+
 .item5{
-    border: black 2px solid;
+    border: rgb(65, 62, 62) 2px solid;
+    border-radius: 5px;
     margin-bottom: 10px;
-    font-family: 'MADE TOMMY';
+    font-family: 'arial';
     font-size: 100%;
     width: 15em;
     color: black;
