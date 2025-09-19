@@ -3,9 +3,11 @@ import {
   getFirestore, collection, addDoc, getDocs, serverTimestamp, query, orderBy, doc, getDoc, setDoc 
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
+import jsPDF from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js";
+
 document.addEventListener('DOMContentLoaded', async () => {
 
-  // Configuración de Firebase
+  // ---------------- CONFIGURACIÓN FIREBASE ----------------
   const firebaseConfig = {
     apiKey: "AIzaSyBgbBA28SKFqMU4ZePCKq8Cr7PvUKdd5AA",
     authDomain: "adminwebcd.firebaseapp.com",
@@ -19,32 +21,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Colecciones
+  // ---------------- COLECCIONES ----------------
   const colequipos = collection(db, 'equipos');
   const colpresupuestos = collection(db, 'presupuestos');
-  const counterDocRef = doc(db, 'counters', 'equiposCounter'); // Documento para el contador de IDs propios
+  const counterDocRef = doc(db, 'counters', 'equiposCounter'); // contador ID propio
 
-  // DataTables
+  // ---------------- DATATABLES ----------------
   const tablaEquipos = $('#tablaEquipos').DataTable();
   const tablaPresupuestos = $('#tablaPresupuestos').DataTable();
 
-  // ----------------- REGISTRAR EQUIPO -----------------
+  // ---------------- REGISTRAR EQUIPO ----------------
   const formEquipo = document.getElementById('formEquipo');
   const mensajeId = document.getElementById('mensajeId');
 
   formEquipo.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Obtener el último ID propio
-    let lastId = 1999; // valor inicial si no existe
+    let lastId = 1999;
     const counterSnap = await getDoc(counterDocRef);
-    if (counterSnap.exists()) {
-      lastId = counterSnap.data().lastId;
-    }
+    if (counterSnap.exists()) lastId = counterSnap.data().lastId;
 
-    const newId = lastId + 1; // ID para el nuevo equipo
+    const newId = lastId + 1;
 
-    // Guardar nuevo equipo con ID propio
     const data = {
       idPropio: newId,
       clienteNombre: document.getElementById('clienteNombre').value,
@@ -61,14 +59,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
       await addDoc(colequipos, data);
-
-      // Actualizar el contador en Firestore
       await setDoc(counterDocRef, { lastId: newId });
 
-      // Mostrar mensaje con ID propio
       mensajeId.textContent = 'Equipo registrado con ID: ' + newId;
       alert('Equipo registrado con ID: ' + newId);
-
       formEquipo.reset();
       cargarEquipos();
     } catch (error) {
@@ -77,7 +71,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // ----------------- CARGAR EQUIPOS -----------------
+  // ---------------- CARGAR EQUIPOS ----------------
   async function cargarEquipos() {
     tablaEquipos.clear();
     const q = query(colequipos, orderBy('fechaIngreso'));
@@ -101,13 +95,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     tablaEquipos.draw();
   }
 
-  // ----------------- REGISTRAR PRESUPUESTO -----------------
+  // ---------------- REGISTRAR PRESUPUESTO ----------------
   const formPresupuesto = document.getElementById('formPresupuesto');
   const mensajePresupuesto = document.getElementById('mensajePresupuesto');
 
   formPresupuesto.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const equipoId = parseInt(document.getElementById('presupuestoEquipoId').value.trim());
+    const equipoId = document.getElementById('presupuestoEquipoId').value.trim();
     if (!equipoId) return alert("Debe ingresar un ID de equipo válido");
 
     const pres = {
@@ -125,13 +119,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       alert('Presupuesto registrado ID: ' + docRef.id);
       formPresupuesto.reset();
       cargarPresupuestos();
+      generarPDF(pres, docRef.id);
+      actualizarIngresos();
     } catch (error) {
       console.error("Error al registrar presupuesto:", error);
       alert("Ocurrió un error al registrar el presupuesto.");
     }
   });
 
-  // ----------------- CARGAR PRESUPUESTOS -----------------
+  // ---------------- CARGAR PRESUPUESTOS ----------------
   async function cargarPresupuestos() {
     tablaPresupuestos.clear();
     const q = query(colpresupuestos, orderBy('fechaPresupuesto'));
@@ -152,8 +148,59 @@ document.addEventListener('DOMContentLoaded', async () => {
     tablaPresupuestos.draw();
   }
 
-  // ----------------- INICIALIZAR -----------------
+  // ---------------- GENERAR PDF ----------------
+  async function generarPDF(presupuesto, docId) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Logo
+    const img = new Image();
+    img.src = 'img/logo.jpg';
+    img.onload = () => {
+      doc.addImage(img, 'JPEG', 60, 10, 90, 30);
+
+      // Texto presupuesto
+      doc.setFontSize(12);
+      doc.text(`Presupuesto ID: ${docId}`, 10, 50);
+      doc.text(`Equipo ID: ${presupuesto.equipoId}`, 10, 60);
+      doc.text(`Reparación: ${presupuesto.reparacion}`, 10, 70);
+      doc.text(`Repuestos: ${presupuesto.repuestos}`, 10, 80);
+      doc.text(`Gastos: $${presupuesto.gastos.toFixed(2)}`, 10, 90);
+      doc.text(`Precio final: $${presupuesto.precioFinal.toFixed(2)}`, 10, 100);
+
+      doc.save(`Presupuesto_${presupuesto.equipoId}.pdf`);
+    };
+  }
+
+  // ---------------- INGRESOS ----------------
+  const ctxIngresos = document.getElementById('chartIngresos').getContext('2d');
+  let chartIngresos = new Chart(ctxIngresos, {
+    type: 'bar',
+    data: { labels: [], datasets: [{ label: 'Ingresos', data: [], backgroundColor: '#f1c40f' }] },
+    options: { responsive: true, scales: { y: { beginAtZero: true } } }
+  });
+
+  async function actualizarIngresos() {
+    const snapshot = await getDocs(colpresupuestos);
+    const ingresosPorFecha = {};
+
+    snapshot.forEach(docu => {
+      const d = docu.data();
+      const fecha = d.fechaPresupuesto?.toDate ? d.fechaPresupuesto.toDate().toLocaleDateString() : '';
+      if (!ingresosPorFecha[fecha]) ingresosPorFecha[fecha] = 0;
+      ingresosPorFecha[fecha] += d.precioFinal || 0;
+    });
+
+    chartIngresos.data.labels = Object.keys(ingresosPorFecha);
+    chartIngresos.data.datasets[0].data = Object.values(ingresosPorFecha);
+    chartIngresos.update();
+  }
+
+  document.getElementById('btnRefrescarIngresos').addEventListener('click', actualizarIngresos);
+
+  // ---------------- INICIALIZAR ----------------
   cargarEquipos();
   cargarPresupuestos();
+  actualizarIngresos();
 
 });
