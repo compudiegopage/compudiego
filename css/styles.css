@@ -1,0 +1,15 @@
+:root{
+  --rojo: #d32f2f;
+  --negro: #212121;
+  --gris: #f9f5f2;
+}
+body{
+  background: white;
+  color: var(--negro);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+.card-header.bg-red{ background: var(--rojo); }
+.btn-red{ background: var(--rojo); color: white; border: none; }
+.btn-red:hover{ opacity: .9; }
+.text-muted{ color: #6b6b6b }
+#mensajeId, #mensajePresupuesto{ font-weight:700 }

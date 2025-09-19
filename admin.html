@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin - Taller Reparaciones</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="container my-4">
+    <header class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="h3">Panel Admin - Taller de Reparaciones</h1>
+      <nav>
+        <a href="#registrarEquipo" class="btn btn-outline-dark me-2">Registrar equipo</a>
+        <a href="#registrarPresupuesto" class="btn btn-outline-dark me-2">Registrar presupuesto</a>
+        <a href="#consultas" class="btn btn-outline-dark">Consultas</a>
+      </nav>
+    </header>
+
+    <div class="card mb-4" id="registrarEquipo">
+      <div class="card-header bg-red text-white">Registrar equipo</div>
+      <div class="card-body">
+        <form id="formEquipo">
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label>Nombre cliente</label>
+              <input required type="text" id="clienteNombre" class="form-control" />
+            </div>
+            <div class="col-md-2 mb-3">
+              <label>DNI</label>
+              <input required type="text" id="clienteDNI" class="form-control" />
+            </div>
+            <div class="col-md-2 mb-3">
+              <label>Teléfono</label>
+              <input required type="text" id="clienteTelefono" class="form-control" />
+            </div>
+            <div class="col-md-4 mb-3">
+              <label>Tipo</label>
+              <input required id="equipoTipo" class="form-control" />
+            </div>
+
+            <div class="col-md-3 mb-3">
+              <label>Marca</label>
+              <input id="equipoMarca" class="form-control" />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label>Modelo</label>
+              <input id="equipoModelo" class="form-control" />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label>SN</label>
+              <input id="equipoSN" class="form-control" />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label>Observaciones</label>
+              <input id="equipoObs" class="form-control" />
+            </div>
+
+            <div class="col-12 mb-3">
+              <label>Falla</label>
+              <textarea id="equipoFalla" class="form-control" rows="2"></textarea>
+            </div>
+
+            <div class="col-12">
+              <button type="submit" class="btn btn-red">Registrar equipo</button>
+              <span id="mensajeId" class="ms-3 text-success"></span>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card mb-4" id="registrarPresupuesto">
+      <div class="card-header bg-red text-white">Registrar presupuesto</div>
+      <div class="card-body">
+        <form id="formPresupuesto">
+          <div class="row">
+            <div class="col-md-3 mb-3">
+              <label>ID equipo</label>
+              <input required id="presupuestoEquipoId" class="form-control" />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label>Reparación</label>
+              <input required id="presupuestoReparacion" type="number" step="0.01" class="form-control" value="0" />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label>Repuestos</label>
+              <input required id="presupuestoRepuestos" type="number" step="0.01" class="form-control" value="0" />
+            </div>
+            <div class="col-md-3 mb-3">
+              <label>Gastos</label>
+              <input required id="presupuestoGastos" type="number" step="0.01" class="form-control" value="0" />
+            </div>
+
+            <div class="col-md-3 mb-3">
+              <label>Precio final</label>
+              <input required id="presupuestoPrecioFinal" type="number" step="0.01" class="form-control" value="0" />
+            </div>
+
+            <div class="col-12">
+              <button class="btn btn-red" type="submit">Registrar presupuesto</button>
+              <span id="mensajePresupuesto" class="ms-3 text-success"></span>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card mb-4" id="consultas">
+      <div class="card-header bg-red text-white">Consultas</div>
+      <div class="card-body">
+        <ul class="nav nav-tabs mb-3" id="tabs">
+          <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tabEquipos">Equipos</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabPresupuestos">Presupuestos</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#tabIngresos">Ingresos</a></li>
+        </ul>
+
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="tabEquipos">
+            <table id="tablaEquipos" class="display" style="width:100%">
+              <thead><tr><th>ID</th><th>Fecha</th><th>Nombre</th><th>DNI</th><th>Tel</th><th>Tipo</th><th>Marca</th><th>Modelo</th><th>SN</th><th>Falla</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="tab-pane fade" id="tabPresupuestos">
+            <table id="tablaPresupuestos" class="display" style="width:100%">
+              <thead><tr><th>ID</th><th>ID Equipo</th><th>Fecha</th><th>Reparación</th><th>Repuestos</th><th>Gastos</th><th>Precio Final</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="tab-pane fade" id="tabIngresos">
+            <canvas id="chartIngresos" height="120"></canvas>
+            <div class="mt-3"><button id="btnRefrescarIngresos" class="btn btn-outline-dark">Refrescar ingresos</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="text-center text-muted small">Hecho con ♥ por tu Panel Admin</footer>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>
