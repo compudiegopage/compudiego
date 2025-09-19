@@ -2,11 +2,11 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebas
 import { 
   getFirestore, collection, addDoc, getDocs, serverTimestamp, query, orderBy, doc, getDoc, setDoc 
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
-import jsPDF from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js";
+import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.es.min.js";
 
 document.addEventListener('DOMContentLoaded', async () => {
 
-  // Configuración de Firebase
+  // ---------------- CONFIGURACIÓN FIREBASE ----------------
   const firebaseConfig = {
     apiKey: "AIzaSyBgbBA28SKFqMU4ZePCKq8Cr7PvUKdd5AA",
     authDomain: "adminwebcd.firebaseapp.com",
@@ -20,104 +20,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // Colecciones
+  // ---------------- COLECCIONES ----------------
   const colequipos = collection(db, 'equipos');
   const colpresupuestos = collection(db, 'presupuestos');
-  const counterDocRef = doc(db, 'counters', 'equiposCounter'); // Documento para el contador de IDs propios
+  const counterDocRef = doc(db, 'counters', 'equiposCounter');
 
-  // DataTables
+  // ---------------- DATATABLES ----------------
   const tablaEquipos = $('#tablaEquipos').DataTable();
   const tablaPresupuestos = $('#tablaPresupuestos').DataTable();
-  const tablaIngresos = $('#tablaIngresos').length ? $('#tablaIngresos').DataTable() : null;
+  const tablaIngresos = $('#tablaIngresos') ? $('#tablaIngresos').DataTable() : null;
 
-  // ----------------- FUNCIONES -----------------
-  async function cargarEquipos() {
-    tablaEquipos.clear();
-    const q = query(colequipos, orderBy('fechaIngreso'));
-    const snapshot = await getDocs(q);
-    snapshot.forEach(docu => {
-      const d = docu.data();
-      const fecha = d.fechaIngreso?.toDate ? d.fechaIngreso.toDate().toLocaleString() : '';
-      tablaEquipos.row.add([
-        d.idPropio || docu.id,
-        fecha,
-        d.clienteNombre,
-        d.clienteDNI,
-        d.clienteTelefono,
-        d.equipoTipo,
-        d.equipoMarca,
-        d.equipoModelo,
-        d.equipoSN,
-        d.equipoFalla
-      ]);
-    });
-    tablaEquipos.draw();
-  }
-
-  async function cargarPresupuestos() {
-    tablaPresupuestos.clear();
-    const q = query(colpresupuestos, orderBy('fechaPresupuesto'));
-    const snapshot = await getDocs(q);
-    snapshot.forEach(docu => {
-      const d = docu.data();
-      const fecha = d.fechaPresupuesto?.toDate ? d.fechaPresupuesto.toDate().toLocaleString() : '';
-      tablaPresupuestos.row.add([
-        docu.id,
-        d.equipoId,
-        fecha,
-        d.reparacion,
-        d.repuestos,
-        d.gastos,
-        d.precioFinal
-      ]);
-    });
-    tablaPresupuestos.draw();
-  }
-
-  async function cargarIngresos() {
-    if (!tablaIngresos) return;
-
-    tablaIngresos.clear();
-    const snapshot = await getDocs(colpresupuestos);
-    const ingresosPorMes = {};
-
-    snapshot.forEach(docu => {
-      const d = docu.data();
-      const fecha = d.fechaPresupuesto?.toDate ? d.fechaPresupuesto.toDate() : new Date();
-      const mesAnio = fecha.toLocaleString('es-AR', { month: 'long', year: 'numeric' });
-      const total = parseFloat(d.precioFinal) || 0;
-      ingresosPorMes[mesAnio] = (ingresosPorMes[mesAnio] || 0) + total;
-    });
-
-    for (const [mes, total] of Object.entries(ingresosPorMes)) {
-      tablaIngresos.row.add([mes, total.toFixed(2)]);
-    }
-    tablaIngresos.draw();
-  }
-
-  function generarPDF(equipoData) {
-    const { idPropio, clienteNombre, equipoTipo, equipoMarca, equipoModelo, equipoSN, equipoFalla } = equipoData;
-
-    const doc = new jsPDF.jsPDF();
-
-    const img = new Image();
-    img.src = '../img/logo.jpg'; // ruta relativa correcta
-    img.onload = () => {
-      doc.addImage(img, 'JPEG', 60, 10, 90, 20); // ajusta tamaño del logo
-      doc.setFontSize(14);
-      doc.text(`ID Equipo: ${idPropio}`, 20, 50);
-      doc.text(`Cliente: ${clienteNombre}`, 20, 60);
-      doc.text(`Tipo: ${equipoTipo}`, 20, 70);
-      doc.text(`Marca: ${equipoMarca}`, 20, 80);
-      doc.text(`Modelo: ${equipoModelo}`, 20, 90);
-      doc.text(`SN: ${equipoSN}`, 20, 100);
-      doc.text(`Falla: ${equipoFalla}`, 20, 110);
-
-      doc.save(`equipo_${idPropio}.pdf`);
-    };
-  }
-
-  // ----------------- REGISTRAR EQUIPO -----------------
+  // ---------------- REGISTRAR EQUIPO ----------------
   const formEquipo = document.getElementById('formEquipo');
   const mensajeId = document.getElementById('mensajeId');
 
@@ -131,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const newId = lastId + 1;
 
-    // Guardar equipo
+    // Guardar nuevo equipo
     const data = {
       idPropio: newId,
       clienteNombre: document.getElementById('clienteNombre').value,
@@ -155,14 +68,39 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       formEquipo.reset();
       cargarEquipos();
-      generarPDF(data); // genera PDF automáticamente
+      generarPDF(data); // Generar PDF automáticamente al registrar
+      cargarIngresos(); // actualizar ingresos
     } catch (error) {
       console.error("Error al registrar equipo:", error);
       alert("Ocurrió un error al registrar el equipo.");
     }
   });
 
-  // ----------------- REGISTRAR PRESUPUESTO -----------------
+  // ---------------- CARGAR EQUIPOS ----------------
+  async function cargarEquipos() {
+    tablaEquipos.clear();
+    const q = query(colequipos, orderBy('fechaIngreso'));
+    const snapshot = await getDocs(q);
+    snapshot.forEach(docu => {
+      const d = docu.data();
+      const fecha = d.fechaIngreso?.toDate ? d.fechaIngreso.toDate().toLocaleString() : '';
+      tablaEquipos.row.add([
+        d.idPropio || docu.id,
+        fecha,
+        d.clienteNombre,
+        d.clienteDNI,
+        d.clienteTelefono,
+        d.equipoTipo,
+        d.equipoMarca,
+        d.equipoModelo,
+        d.equipoSN,
+        d.equipoFalla
+      ]);
+    });
+    tablaEquipos.draw();
+  }
+
+  // ---------------- REGISTRAR PRESUPUESTO ----------------
   const formPresupuesto = document.getElementById('formPresupuesto');
   const mensajePresupuesto = document.getElementById('mensajePresupuesto');
 
@@ -181,19 +119,94 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     try {
-      await addDoc(colpresupuestos, pres);
-      mensajePresupuesto.textContent = 'Presupuesto registrado ID: ' + equipoId;
-      alert('Presupuesto registrado ID: ' + equipoId);
+      const docRef = await addDoc(colpresupuestos, pres);
+      mensajePresupuesto.textContent = 'Presupuesto registrado ID: ' + docRef.id;
+      alert('Presupuesto registrado ID: ' + docRef.id);
       formPresupuesto.reset();
       cargarPresupuestos();
-      cargarIngresos();
+      cargarIngresos(); // actualizar ingresos
     } catch (error) {
       console.error("Error al registrar presupuesto:", error);
       alert("Ocurrió un error al registrar el presupuesto.");
     }
   });
 
-  // ----------------- INICIALIZAR -----------------
+  // ---------------- CARGAR PRESUPUESTOS ----------------
+  async function cargarPresupuestos() {
+    tablaPresupuestos.clear();
+    const q = query(colpresupuestos, orderBy('fechaPresupuesto'));
+    const snapshot = await getDocs(q);
+    snapshot.forEach(docu => {
+      const d = docu.data();
+      const fecha = d.fechaPresupuesto?.toDate ? d.fechaPresupuesto.toDate().toLocaleString() : '';
+      tablaPresupuestos.row.add([
+        docu.id,
+        d.equipoId,
+        fecha,
+        d.reparacion,
+        d.repuestos,
+        d.gastos,
+        d.precioFinal
+      ]);
+    });
+    tablaPresupuestos.draw();
+  }
+
+  // ---------------- GENERAR PDF ----------------
+  function generarPDF(equipo) {
+    const doc = new jsPDF();
+    // Logo
+    const img = new Image();
+    img.src = "../img/logo.jpg";
+    img.onload = () => {
+      doc.addImage(img, "JPEG", 60, 10, 90, 20); // centrado arriba
+      doc.setFontSize(14);
+      doc.text(`Equipo ID: ${equipo.idPropio}`, 20, 50);
+      doc.text(`Cliente: ${equipo.clienteNombre}`, 20, 60);
+      doc.text(`DNI: ${equipo.clienteDNI}`, 20, 70);
+      doc.text(`Tel: ${equipo.clienteTelefono}`, 20, 80);
+      doc.text(`Tipo: ${equipo.equipoTipo}`, 20, 90);
+      doc.text(`Marca: ${equipo.equipoMarca}`, 20, 100);
+      doc.text(`Modelo: ${equipo.equipoModelo}`, 20, 110);
+      doc.text(`SN: ${equipo.equipoSN}`, 20, 120);
+      doc.text(`Falla: ${equipo.equipoFalla}`, 20, 130);
+      doc.save(`Equipo_${equipo.idPropio}.pdf`);
+    };
+  }
+
+  // ---------------- INGRESOS POR MES ----------------
+  async function cargarIngresos() {
+    if (!$('#tablaIngresos').length) return;
+    const ingresosPorMes = {};
+
+    const snapshot = await getDocs(colpresupuestos);
+    snapshot.forEach(docu => {
+      const d = docu.data();
+      if (!d.fechaPresupuesto?.toDate) return;
+      const fecha = d.fechaPresupuesto.toDate();
+      const month = fecha.toLocaleString('es-AR', { month: 'long', year: 'numeric' });
+      ingresosPorMes[month] = (ingresosPorMes[month] || 0) + (d.precioFinal || 0);
+    });
+
+    // Crear DataTable si no existe
+    if (!tablaIngresos) {
+      $('#tablaIngresos').DataTable({
+        data: Object.entries(ingresosPorMes).map(([mes, total]) => [mes, total.toFixed(2)]),
+        columns: [
+          { title: "Mes" },
+          { title: "Ingresos" }
+        ]
+      });
+    } else {
+      tablaIngresos.clear();
+      Object.entries(ingresosPorMes).forEach(([mes, total]) => {
+        tablaIngresos.row.add([mes, total.toFixed(2)]);
+      });
+      tablaIngresos.draw();
+    }
+  }
+
+  // ---------------- INICIALIZAR ----------------
   cargarEquipos();
   cargarPresupuestos();
   cargarIngresos();
