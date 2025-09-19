@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebas
 import { 
   getFirestore, collection, addDoc, getDocs, serverTimestamp, query, orderBy, doc, getDoc, setDoc 
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
-import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.es.min.js";
+const { jsPDF } = window.jspdf;
 
 document.addEventListener('DOMContentLoaded', async () => {
 
