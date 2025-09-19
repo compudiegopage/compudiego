@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ---------------- COLECCIONES ----------------
   const colequipos = collection(db, 'equipos');
   const colpresupuestos = collection(db, 'presupuestos');
+  const colventas = collection(db, 'ventas'); // nueva colección para ventas
   const counterDocRef = doc(db, 'counters', 'equiposCounter');
 
   // ---------------- DATATABLES ----------------
@@ -171,13 +172,43 @@ document.addEventListener('DOMContentLoaded', async () => {
     tablaPresupuestos.draw();
   }
 
+  // ---------------- REGISTRAR VENTA ----------------
+  const formVenta = document.getElementById('formVenta');
+  const mensajeVenta = document.getElementById('mensajeVenta');
+
+  formVenta.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const venta = {
+      clienteNombre: document.getElementById('ventaClienteNombre').value,
+      clienteDNI: document.getElementById('ventaClienteDNI').value,
+      clienteTelefono: document.getElementById('ventaClienteTelefono').value,
+      productoVendido: document.getElementById('ventaProducto').value,
+      gasto: parseFloat(document.getElementById('ventaGasto').value) || 0,
+      precio: parseFloat(document.getElementById('ventaPrecio').value) || 0,
+      fechaVenta: serverTimestamp()
+    };
+
+    try {
+      await addDoc(colventas, venta);
+      mensajeVenta.textContent = `Venta registrada: ${venta.productoVendido}`;
+      alert(`Venta registrada: ${venta.productoVendido}`);
+      formVenta.reset();
+      cargarIngresos();
+    } catch (error) {
+      console.error("Error al registrar venta:", error);
+      alert("Ocurrió un error al registrar la venta.");
+    }
+  });
+
   // ---------------- CARGAR INGRESOS POR MES ----------------
   async function cargarIngresos() {
     tablaIngresos.clear();
-    const snapshot = await getDocs(colpresupuestos);
     const meses = {};
 
-    snapshot.forEach(docu => {
+    // Presupuestos
+    const snapshotPres = await getDocs(colpresupuestos);
+    snapshotPres.forEach(docu => {
       const d = docu.data();
       const fecha = d.fechaPresupuesto?.toDate ? d.fechaPresupuesto.toDate() : new Date();
       const mesAnio = fecha.toLocaleString('es-AR', { month: 'long', year: 'numeric' });
@@ -185,6 +216,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       meses[mesAnio] += d.precioFinal || 0;
     });
 
+    // Ventas
+    const snapshotVentas = await getDocs(colventas);
+    snapshotVentas.forEach(docu => {
+      const v = docu.data();
+      const fecha = v.fechaVenta?.toDate ? v.fechaVenta.toDate() : new Date();
+      const mesAnio = fecha.toLocaleString('es-AR', { month: 'long', year: 'numeric' });
+      if (!meses[mesAnio]) meses[mesAnio] = 0;
+      meses[mesAnio] += (v.precio - v.gasto) || 0;
+    });
+
+    // Agregar al DataTable
     Object.keys(meses).sort((a,b) => new Date(a) - new Date(b)).forEach(mes => {
       tablaIngresos.row.add([mes, meses[mes].toFixed(2)]);
     });

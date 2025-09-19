@@ -108,6 +108,44 @@
         </form>
       </div>
     </div>
+<div class="card mb-4" id="registrarVenta">
+  <div class="card-header bg-red text-white">Registrar venta</div>
+  <div class="card-body">
+    <form id="formVenta">
+      <div class="row">
+        <div class="col-md-3 mb-3">
+          <label>Nombre cliente</label>
+          <input required id="ventaClienteNombre" class="form-control" />
+        </div>
+        <div class="col-md-2 mb-3">
+          <label>DNI</label>
+          <input required id="ventaClienteDNI" class="form-control" />
+        </div>
+        <div class="col-md-2 mb-3">
+          <label>Teléfono</label>
+          <input required id="ventaClienteTelefono" class="form-control" />
+        </div>
+        <div class="col-md-3 mb-3">
+          <label>Producto/Servicio</label>
+          <input required id="ventaProducto" class="form-control" />
+        </div>
+        <div class="col-md-1 mb-3">
+          <label>Gasto</label>
+          <input required id="ventaGasto" type="number" step="0.01" class="form-control" value="0" />
+        </div>
+        <div class="col-md-1 mb-3">
+          <label>Precio</label>
+          <input required id="ventaPrecio" type="number" step="0.01" class="form-control" value="0" />
+        </div>
+
+        <div class="col-12">
+          <button type="submit" class="btn btn-red">Registrar venta</button>
+          <span id="mensajeVenta" class="ms-3 text-success"></span>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
 
     <div class="card mb-4" id="consultas">
       <div class="card-header bg-red text-white">Consultas</div>
