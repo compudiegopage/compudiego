@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   formEquipo.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // 1️⃣ Obtener el último ID propio
+    // Obtener el último ID propio
     let lastId = 1999; // valor inicial si no existe
     const counterSnap = await getDoc(counterDocRef);
     if (counterSnap.exists()) {
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const newId = lastId + 1; // ID para el nuevo equipo
 
-    // 2️⃣ Guardar nuevo equipo con ID propio
+    // Guardar nuevo equipo con ID propio
     const data = {
       idPropio: newId,
       clienteNombre: document.getElementById('clienteNombre').value,
@@ -62,10 +62,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       await addDoc(colequipos, data);
 
-      // 3️⃣ Actualizar el contador en Firestore
+      // Actualizar el contador en Firestore
       await setDoc(counterDocRef, { lastId: newId });
 
-      // 4️⃣ Mostrar mensaje con ID propio
+      // Mostrar mensaje con ID propio
       mensajeId.textContent = 'Equipo registrado con ID: ' + newId;
       alert('Equipo registrado con ID: ' + newId);
 
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const d = docu.data();
       const fecha = d.fechaIngreso?.toDate ? d.fechaIngreso.toDate().toLocaleString() : '';
       tablaEquipos.row.add([
-        d.idPropio || docu.id, // mostrar ID propio si existe, si no el ID de Firebase
+        d.idPropio || docu.id,
         fecha,
         d.clienteNombre,
         d.clienteDNI,
@@ -107,13 +107,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   formPresupuesto.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const equipoId = document.getElementById('presupuestoEquipoId').value.trim();
+    const equipoId = parseInt(document.getElementById('presupuestoEquipoId').value.trim());
     if (!equipoId) return alert("Debe ingresar un ID de equipo válido");
 
     const pres = {
       equipoId,
-      reparacion: parseFloat(document.getElementById('presupuestoReparacion').value) || 0,
-      repuestos: parseFloat(document.getElementById('presupuestoRepuestos').value) || 0,
+      reparacion: document.getElementById('presupuestoReparacion').value.trim(),
+      repuestos: document.getElementById('presupuestoRepuestos').value.trim(),
       gastos: parseFloat(document.getElementById('presupuestoGastos').value) || 0,
       precioFinal: parseFloat(document.getElementById('presupuestoPrecioFinal').value) || 0,
       fechaPresupuesto: serverTimestamp()
