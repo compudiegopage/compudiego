@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ---------------- COLECCIONES ----------------
   const colequipos = collection(db, 'equipos');
   const colpresupuestos = collection(db, 'presupuestos');
-  const colventas = collection(db, 'ventas'); // nueva colección para ventas
+  const colventas = collection(db, 'ventas'); // ventas
   const counterDocRef = doc(db, 'counters', 'equiposCounter');
 
   // ---------------- DATATABLES ----------------
@@ -72,23 +72,74 @@ document.addEventListener('DOMContentLoaded', async () => {
       formEquipo.reset();
       cargarEquipos();
 
-      // ---------------- GENERAR PDF ----------------
+      // ---------------- GENERAR PDF PROFESIONAL ----------------
       const pdf = new jsPDF();
-      pdf.setFontSize(20);
-      pdf.text("CompuDiego", 105, 20, { align: "center" });
 
-      pdf.setFontSize(16);
-      pdf.text(`Registro de equipo ID: ${newId}`, 15, 40);
-      pdf.setFontSize(12);
-      pdf.text(`Cliente: ${data.clienteNombre}`, 15, 50);
-      pdf.text(`DNI: ${data.clienteDNI}`, 15, 60);
-      pdf.text(`Teléfono: ${data.clienteTelefono}`, 15, 70);
-      pdf.text(`Equipo: ${data.equipoTipo} ${data.equipoMarca} ${data.equipoModelo}`, 15, 80);
-      pdf.text(`SN: ${data.equipoSN}`, 15, 90);
-      pdf.text(`Falla: ${data.equipoFalla}`, 15, 100);
-      pdf.text(`Observaciones: ${data.equipoObs}`, 15, 110);
+      // --- ENCABEZADO CENTRADO ---
+      pdf.setFontSize(10);
+      pdf.setFont("helvetica", "bold");
+      const headerText = [
+        "Ingeniero Luparello Diego Ezequiel",
+        "Celular: +54 9 11 50186664 - compu.diego94@gmail.com",
+        "CUIT: 20382284578 - Domicilio: Calle 202 252, Berazategui, CP: 1884",
+        "Actividad AFIP: Servicios de informática N.C.P."
+      ];
+      let yHeader = 10;
+      headerText.forEach(line => {
+        pdf.text(line, 105, yHeader, { align: "center" });
+        yHeader += 5;
+      });
 
-      pdf.save(`equipo_${newId}.pdf`);
+      pdf.setLineWidth(0.5);
+      pdf.line(15, yHeader, 195, yHeader);
+      yHeader += 10;
+
+      // --- LOGO CENTRADO ---
+      const img = new Image();
+      img.src = '../img/logo.jpg';
+      img.onload = () => {
+        const imgWidth = 60;
+        const imgHeight = (img.height * imgWidth) / img.width;
+        pdf.addImage(img, 'JPEG', (210 - imgWidth) / 2, yHeader, imgWidth, imgHeight);
+
+        let yBody = yHeader + imgHeight + 10;
+
+        // --- FECHA ABAJO A LA DERECHA ---
+        const fechaActual = new Date();
+        const fechaStr = fechaActual.toLocaleDateString('es-AR');
+        pdf.setFontSize(10);
+        pdf.text(`Fecha: ${fechaStr}`, 195, yBody, { align: "right" });
+
+        // --- CUADRO CON DATOS DEL CLIENTE Y EQUIPO ---
+        yBody += 10;
+        pdf.setDrawColor(0);
+        pdf.setLineWidth(0.5);
+        pdf.rect(15, yBody, 180, 80); 
+
+        let yData = yBody + 10;
+        pdf.setFontSize(12);
+        pdf.setFont("helvetica", "bold");
+        pdf.text("Datos del Cliente y Equipo", 105, yData, { align: "center" });
+        yData += 10;
+
+        pdf.setFont("helvetica", "normal");
+        pdf.text(`Cliente: ${data.clienteNombre}`, 20, yData);
+        yData += 8;
+        pdf.text(`DNI: ${data.clienteDNI}`, 20, yData);
+        yData += 8;
+        pdf.text(`Teléfono: ${data.clienteTelefono}`, 20, yData);
+        yData += 8;
+        pdf.text(`Equipo: ${data.equipoTipo} ${data.equipoMarca} ${data.equipoModelo}`, 20, yData);
+        yData += 8;
+        pdf.text(`SN: ${data.equipoSN}`, 20, yData);
+        yData += 8;
+        pdf.text(`Falla: ${data.equipoFalla}`, 20, yData);
+        yData += 8;
+        pdf.text(`Observaciones: ${data.equipoObs}`, 20, yData);
+
+        // Guardar PDF
+        pdf.save(`equipo_${newId}.pdf`);
+      };
 
     } catch (error) {
       console.error("Error al registrar equipo:", error);
@@ -212,30 +263,4 @@ document.addEventListener('DOMContentLoaded', async () => {
       const d = docu.data();
       const fecha = d.fechaPresupuesto?.toDate ? d.fechaPresupuesto.toDate() : new Date();
       const mesAnio = fecha.toLocaleString('es-AR', { month: 'long', year: 'numeric' });
-      if (!meses[mesAnio]) meses[mesAnio] = 0;
-      meses[mesAnio] += d.precioFinal || 0;
-    });
-
-    // Ventas
-    const snapshotVentas = await getDocs(colventas);
-    snapshotVentas.forEach(docu => {
-      const v = docu.data();
-      const fecha = v.fechaVenta?.toDate ? v.fechaVenta.toDate() : new Date();
-      const mesAnio = fecha.toLocaleString('es-AR', { month: 'long', year: 'numeric' });
-      if (!meses[mesAnio]) meses[mesAnio] = 0;
-      meses[mesAnio] += (v.precio - v.gasto) || 0;
-    });
-
-    // Agregar al DataTable
-    Object.keys(meses).sort((a,b) => new Date(a) - new Date(b)).forEach(mes => {
-      tablaIngresos.row.add([mes, meses[mes].toFixed(2)]);
-    });
-    tablaIngresos.draw();
-  }
-
-  // ---------------- INICIALIZAR ----------------
-  cargarEquipos();
-  cargarPresupuestos();
-  cargarIngresos();
-
-});
+      if (!mes
