@@ -6,7 +6,7 @@ import { jsPDF } from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.es.mi
 
 document.addEventListener('DOMContentLoaded', async () => {
 
-  // ---------------- CONFIGURACIÓN FIREBASE ----------------
+  // ---------------- CONFIG FIREBASE ----------------
   const firebaseConfig = {
     apiKey: "AIzaSyBgbBA28SKFqMU4ZePCKq8Cr7PvUKdd5AA",
     authDomain: "adminwebcd.firebaseapp.com",
@@ -28,7 +28,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ---------------- DATATABLES ----------------
   const tablaEquipos = $('#tablaEquipos').DataTable();
   const tablaPresupuestos = $('#tablaPresupuestos').DataTable();
-  const tablaIngresos = $('#tablaIngresos') ? $('#tablaIngresos').DataTable() : null;
+  const tablaIngresos = $('#tablaIngresos').DataTable({
+    columns: [
+      { title: "Mes" },
+      { title: "Ingresos" }
+    ]
+  });
 
   // ---------------- REGISTRAR EQUIPO ----------------
   const formEquipo = document.getElementById('formEquipo');
@@ -37,14 +42,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   formEquipo.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Obtener último ID propio
     let lastId = 1999;
     const counterSnap = await getDoc(counterDocRef);
     if (counterSnap.exists()) lastId = counterSnap.data().lastId;
 
     const newId = lastId + 1;
 
-    // Guardar nuevo equipo
     const data = {
       idPropio: newId,
       clienteNombre: document.getElementById('clienteNombre').value,
@@ -65,11 +68,33 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       mensajeId.textContent = 'Equipo registrado con ID: ' + newId;
       alert('Equipo registrado con ID: ' + newId);
-
       formEquipo.reset();
       cargarEquipos();
-      generarPDF(data); // Generar PDF automáticamente al registrar
-      cargarIngresos(); // actualizar ingresos
+
+      // ---------------- GENERAR PDF ----------------
+      const pdf = new jsPDF();
+      // Logo
+      const img = new Image();
+      img.src = 'img/logo.jpg';
+      img.onload = () => {
+        const imgWidth = 180;
+        const imgHeight = (img.height * imgWidth) / img.width;
+        pdf.addImage(img, 'JPEG', 15, 10, imgWidth, imgHeight);
+
+        pdf.setFontSize(16);
+        pdf.text(`Registro de equipo ID: ${newId}`, 15, imgHeight + 25);
+        pdf.setFontSize(12);
+        pdf.text(`Cliente: ${data.clienteNombre}`, 15, imgHeight + 35);
+        pdf.text(`DNI: ${data.clienteDNI}`, 15, imgHeight + 45);
+        pdf.text(`Teléfono: ${data.clienteTelefono}`, 15, imgHeight + 55);
+        pdf.text(`Equipo: ${data.equipoTipo} ${data.equipoMarca} ${data.equipoModelo}`, 15, imgHeight + 65);
+        pdf.text(`SN: ${data.equipoSN}`, 15, imgHeight + 75);
+        pdf.text(`Falla: ${data.equipoFalla}`, 15, imgHeight + 85);
+        pdf.text(`Observaciones: ${data.equipoObs}`, 15, imgHeight + 95);
+
+        pdf.save(`equipo_${newId}.pdf`);
+      };
+
     } catch (error) {
       console.error("Error al registrar equipo:", error);
       alert("Ocurrió un error al registrar el equipo.");
@@ -111,20 +136,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const pres = {
       equipoId,
-      reparacion: document.getElementById('presupuestoReparacion').value,
-      repuestos: document.getElementById('presupuestoRepuestos').value,
+      reparacion: document.getElementById('presupuestoReparacion').value.trim(),
+      repuestos: document.getElementById('presupuestoRepuestos').value.trim(),
       gastos: parseFloat(document.getElementById('presupuestoGastos').value) || 0,
       precioFinal: parseFloat(document.getElementById('presupuestoPrecioFinal').value) || 0,
       fechaPresupuesto: serverTimestamp()
     };
 
     try {
-      const docRef = await addDoc(colpresupuestos, pres);
-      mensajePresupuesto.textContent = 'Presupuesto registrado ID: ' + docRef.id;
-      alert('Presupuesto registrado ID: ' + docRef.id);
+      await addDoc(colpresupuestos, pres);
+      mensajePresupuesto.textContent = 'Presupuesto registrado ID: ' + equipoId;
+      alert('Presupuesto registrado ID: ' + equipoId);
       formPresupuesto.reset();
       cargarPresupuestos();
-      cargarIngresos(); // actualizar ingresos
+      cargarIngresos();
     } catch (error) {
       console.error("Error al registrar presupuesto:", error);
       alert("Ocurrió un error al registrar el presupuesto.");
@@ -152,58 +177,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     tablaPresupuestos.draw();
   }
 
-  // ---------------- GENERAR PDF ----------------
-  function generarPDF(equipo) {
-    const doc = new jsPDF();
-    // Logo
-    const img = new Image();
-    img.src = "../img/logo.jpg";
-    img.onload = () => {
-      doc.addImage(img, "JPEG", 60, 10, 90, 20); // centrado arriba
-      doc.setFontSize(14);
-      doc.text(`Equipo ID: ${equipo.idPropio}`, 20, 50);
-      doc.text(`Cliente: ${equipo.clienteNombre}`, 20, 60);
-      doc.text(`DNI: ${equipo.clienteDNI}`, 20, 70);
-      doc.text(`Tel: ${equipo.clienteTelefono}`, 20, 80);
-      doc.text(`Tipo: ${equipo.equipoTipo}`, 20, 90);
-      doc.text(`Marca: ${equipo.equipoMarca}`, 20, 100);
-      doc.text(`Modelo: ${equipo.equipoModelo}`, 20, 110);
-      doc.text(`SN: ${equipo.equipoSN}`, 20, 120);
-      doc.text(`Falla: ${equipo.equipoFalla}`, 20, 130);
-      doc.save(`Equipo_${equipo.idPropio}.pdf`);
-    };
-  }
-
-  // ---------------- INGRESOS POR MES ----------------
+  // ---------------- CARGAR INGRESOS POR MES ----------------
   async function cargarIngresos() {
-    if (!$('#tablaIngresos').length) return;
-    const ingresosPorMes = {};
-
+    tablaIngresos.clear();
     const snapshot = await getDocs(colpresupuestos);
+    const meses = {};
+
     snapshot.forEach(docu => {
       const d = docu.data();
-      if (!d.fechaPresupuesto?.toDate) return;
-      const fecha = d.fechaPresupuesto.toDate();
-      const month = fecha.toLocaleString('es-AR', { month: 'long', year: 'numeric' });
-      ingresosPorMes[month] = (ingresosPorMes[month] || 0) + (d.precioFinal || 0);
+      const fecha = d.fechaPresupuesto?.toDate ? d.fechaPresupuesto.toDate() : new Date();
+      const mesAnio = fecha.toLocaleString('es-AR', { month: 'long', year: 'numeric' });
+      if (!meses[mesAnio]) meses[mesAnio] = 0;
+      meses[mesAnio] += d.precioFinal || 0;
     });
 
-    // Crear DataTable si no existe
-    if (!tablaIngresos) {
-      $('#tablaIngresos').DataTable({
-        data: Object.entries(ingresosPorMes).map(([mes, total]) => [mes, total.toFixed(2)]),
-        columns: [
-          { title: "Mes" },
-          { title: "Ingresos" }
-        ]
-      });
-    } else {
-      tablaIngresos.clear();
-      Object.entries(ingresosPorMes).forEach(([mes, total]) => {
-        tablaIngresos.row.add([mes, total.toFixed(2)]);
-      });
-      tablaIngresos.draw();
-    }
+    Object.keys(meses).sort((a,b) => new Date(a) - new Date(b)).forEach(mes => {
+      tablaIngresos.row.add([mes, meses[mes].toFixed(2)]);
+    });
+    tablaIngresos.draw();
   }
 
   // ---------------- INICIALIZAR ----------------
