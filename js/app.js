@@ -3,11 +3,9 @@ import {
   getFirestore, collection, addDoc, getDocs, serverTimestamp, query, orderBy, doc, getDoc, setDoc 
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
-import jsPDF from "https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js";
-
 document.addEventListener('DOMContentLoaded', async () => {
 
-  // ---------------- CONFIGURACIÓN FIREBASE ----------------
+  // ----------------- Firebase -----------------
   const firebaseConfig = {
     apiKey: "AIzaSyBgbBA28SKFqMU4ZePCKq8Cr7PvUKdd5AA",
     authDomain: "adminwebcd.firebaseapp.com",
@@ -21,16 +19,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // ---------------- COLECCIONES ----------------
   const colequipos = collection(db, 'equipos');
   const colpresupuestos = collection(db, 'presupuestos');
-  const counterDocRef = doc(db, 'counters', 'equiposCounter'); // contador ID propio
+  const counterDocRef = doc(db, 'counters', 'equiposCounter'); // contador de IDs propios
 
-  // ---------------- DATATABLES ----------------
+  // ----------------- DataTables -----------------
   const tablaEquipos = $('#tablaEquipos').DataTable();
   const tablaPresupuestos = $('#tablaPresupuestos').DataTable();
 
-  // ---------------- REGISTRAR EQUIPO ----------------
+  // ----------------- Registrar Equipo -----------------
   const formEquipo = document.getElementById('formEquipo');
   const mensajeId = document.getElementById('mensajeId');
 
@@ -60,7 +57,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       await addDoc(colequipos, data);
       await setDoc(counterDocRef, { lastId: newId });
-
       mensajeId.textContent = 'Equipo registrado con ID: ' + newId;
       alert('Equipo registrado con ID: ' + newId);
       formEquipo.reset();
@@ -71,7 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // ---------------- CARGAR EQUIPOS ----------------
+  // ----------------- Cargar Equipos -----------------
   async function cargarEquipos() {
     tablaEquipos.clear();
     const q = query(colequipos, orderBy('fechaIngreso'));
@@ -95,7 +91,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     tablaEquipos.draw();
   }
 
-  // ---------------- REGISTRAR PRESUPUESTO ----------------
+  // ----------------- Registrar Presupuesto -----------------
   const formPresupuesto = document.getElementById('formPresupuesto');
   const mensajePresupuesto = document.getElementById('mensajePresupuesto');
 
@@ -106,20 +102,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const pres = {
       equipoId,
-      reparacion: document.getElementById('presupuestoReparacion').value.trim(),
-      repuestos: document.getElementById('presupuestoRepuestos').value.trim(),
+      reparacion: document.getElementById('presupuestoReparacion').value,
+      repuestos: document.getElementById('presupuestoRepuestos').value,
       gastos: parseFloat(document.getElementById('presupuestoGastos').value) || 0,
       precioFinal: parseFloat(document.getElementById('presupuestoPrecioFinal').value) || 0,
       fechaPresupuesto: serverTimestamp()
     };
 
     try {
-      const docRef = await addDoc(colpresupuestos, pres);
-      mensajePresupuesto.textContent = 'Presupuesto registrado ID: ' + docRef.id;
-      alert('Presupuesto registrado ID: ' + docRef.id);
+      await addDoc(colpresupuestos, pres);
+      mensajePresupuesto.textContent = 'Presupuesto registrado ID: ' + equipoId;
+      alert('Presupuesto registrado ID: ' + equipoId);
       formPresupuesto.reset();
       cargarPresupuestos();
-      generarPDF(pres, docRef.id);
       actualizarIngresos();
     } catch (error) {
       console.error("Error al registrar presupuesto:", error);
@@ -127,7 +122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // ---------------- CARGAR PRESUPUESTOS ----------------
+  // ----------------- Cargar Presupuestos -----------------
   async function cargarPresupuestos() {
     tablaPresupuestos.clear();
     const q = query(colpresupuestos, orderBy('fechaPresupuesto'));
@@ -148,8 +143,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     tablaPresupuestos.draw();
   }
 
-  // ---------------- GENERAR PDF ----------------
-  async function generarPDF(presupuesto, docId) {
+  // ----------------- Ingresos -----------------
+  const ctx = document.getElementById('chartIngresos').getContext('2d');
+  const chartIngresos = new Chart(ctx, {
+    type: 'bar',
+    data: { labels: [], datasets: [{ label: 'Ingresos', data: [], backgroundColor: '#007bff' }] },
+    options: { responsive: true, plugins: { legend: { display: false } } }
+  });
+
+  async function actualizarIngresos() {
+    const snapshot = await getDocs(colpresupuestos);
+    const labels = [];
+    const data = [];
+    snapshot.forEach(docu => {
+      const d = docu.data();
+      const fecha = d.fechaPresupuesto?.toDate ? d.fechaPresupuesto.toDate().toLocaleDateString() : '';
+      labels.push(fecha);
+      data.push(d.precioFinal || 0);
+    });
+    chartIngresos.data.labels = labels;
+    chartIngresos.data.datasets[0].data = data;
+    chartIngresos.update();
+  }
+
+  document.getElementById('btnRefrescarIngresos').addEventListener('click', actualizarIngresos);
+
+  // ----------------- Generar PDF -----------------
+  const btnPdf = document.createElement('button');
+  btnPdf.textContent = 'Generar PDF';
+  btnPdf.className = 'btn btn-outline-dark mb-3';
+  document.querySelector('#consultas .card-body').prepend(btnPdf);
+
+  btnPdf.addEventListener('click', () => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
@@ -157,48 +182,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     const img = new Image();
     img.src = 'img/logo.jpg';
     img.onload = () => {
-      doc.addImage(img, 'JPEG', 60, 10, 90, 30);
+      const imgWidth = 180;
+      const imgHeight = (img.height / img.width) * imgWidth;
+      doc.addImage(img, 'JPEG', 15, 10, imgWidth, imgHeight);
 
-      // Texto presupuesto
-      doc.setFontSize(12);
-      doc.text(`Presupuesto ID: ${docId}`, 10, 50);
-      doc.text(`Equipo ID: ${presupuesto.equipoId}`, 10, 60);
-      doc.text(`Reparación: ${presupuesto.reparacion}`, 10, 70);
-      doc.text(`Repuestos: ${presupuesto.repuestos}`, 10, 80);
-      doc.text(`Gastos: $${presupuesto.gastos.toFixed(2)}`, 10, 90);
-      doc.text(`Precio final: $${presupuesto.precioFinal.toFixed(2)}`, 10, 100);
+      // Título
+      doc.setFontSize(16);
+      doc.text('Presupuestos Registrados', 105, imgHeight + 25, { align: 'center' });
 
-      doc.save(`Presupuesto_${presupuesto.equipoId}.pdf`);
+      // Tabla
+      let y = imgHeight + 35;
+      tablaPresupuestos.rows().every(function () {
+        const row = this.data();
+        doc.setFontSize(10);
+        doc.text(row.join(' | '), 10, y);
+        y += 7;
+        if (y > 280) { doc.addPage(); y = 10; }
+      });
+
+      doc.save('presupuestos.pdf');
     };
-  }
-
-  // ---------------- INGRESOS ----------------
-  const ctxIngresos = document.getElementById('chartIngresos').getContext('2d');
-  let chartIngresos = new Chart(ctxIngresos, {
-    type: 'bar',
-    data: { labels: [], datasets: [{ label: 'Ingresos', data: [], backgroundColor: '#f1c40f' }] },
-    options: { responsive: true, scales: { y: { beginAtZero: true } } }
   });
 
-  async function actualizarIngresos() {
-    const snapshot = await getDocs(colpresupuestos);
-    const ingresosPorFecha = {};
-
-    snapshot.forEach(docu => {
-      const d = docu.data();
-      const fecha = d.fechaPresupuesto?.toDate ? d.fechaPresupuesto.toDate().toLocaleDateString() : '';
-      if (!ingresosPorFecha[fecha]) ingresosPorFecha[fecha] = 0;
-      ingresosPorFecha[fecha] += d.precioFinal || 0;
-    });
-
-    chartIngresos.data.labels = Object.keys(ingresosPorFecha);
-    chartIngresos.data.datasets[0].data = Object.values(ingresosPorFecha);
-    chartIngresos.update();
-  }
-
-  document.getElementById('btnRefrescarIngresos').addEventListener('click', actualizarIngresos);
-
-  // ---------------- INICIALIZAR ----------------
+  // ----------------- Inicializar -----------------
   cargarEquipos();
   cargarPresupuestos();
   actualizarIngresos();
