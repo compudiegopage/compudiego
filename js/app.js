@@ -73,27 +73,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // ---------------- GENERAR PDF ----------------
       const pdf = new jsPDF();
-      // Logo
-      const img = new Image();
-      img.src = 'img/logo.jpg';
-      img.onload = () => {
-        const imgWidth = 180;
-        const imgHeight = (img.height * imgWidth) / img.width;
-        pdf.addImage(img, 'JPEG', 15, 10, imgWidth, imgHeight);
+      pdf.setFontSize(20);
+      pdf.text("CompuDiego", 105, 20, { align: "center" });
 
-        pdf.setFontSize(16);
-        pdf.text(`Registro de equipo ID: ${newId}`, 15, imgHeight + 25);
-        pdf.setFontSize(12);
-        pdf.text(`Cliente: ${data.clienteNombre}`, 15, imgHeight + 35);
-        pdf.text(`DNI: ${data.clienteDNI}`, 15, imgHeight + 45);
-        pdf.text(`Teléfono: ${data.clienteTelefono}`, 15, imgHeight + 55);
-        pdf.text(`Equipo: ${data.equipoTipo} ${data.equipoMarca} ${data.equipoModelo}`, 15, imgHeight + 65);
-        pdf.text(`SN: ${data.equipoSN}`, 15, imgHeight + 75);
-        pdf.text(`Falla: ${data.equipoFalla}`, 15, imgHeight + 85);
-        pdf.text(`Observaciones: ${data.equipoObs}`, 15, imgHeight + 95);
+      pdf.setFontSize(16);
+      pdf.text(`Registro de equipo ID: ${newId}`, 15, 40);
+      pdf.setFontSize(12);
+      pdf.text(`Cliente: ${data.clienteNombre}`, 15, 50);
+      pdf.text(`DNI: ${data.clienteDNI}`, 15, 60);
+      pdf.text(`Teléfono: ${data.clienteTelefono}`, 15, 70);
+      pdf.text(`Equipo: ${data.equipoTipo} ${data.equipoMarca} ${data.equipoModelo}`, 15, 80);
+      pdf.text(`SN: ${data.equipoSN}`, 15, 90);
+      pdf.text(`Falla: ${data.equipoFalla}`, 15, 100);
+      pdf.text(`Observaciones: ${data.equipoObs}`, 15, 110);
 
-        pdf.save(`equipo_${newId}.pdf`);
-      };
+      pdf.save(`equipo_${newId}.pdf`);
 
     } catch (error) {
       console.error("Error al registrar equipo:", error);
