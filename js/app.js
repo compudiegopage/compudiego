@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ---------------- COLECCIONES ----------------
   const colequipos = collection(db, 'equipos');
   const colpresupuestos = collection(db, 'presupuestos');
-  const colventas = collection(db, 'ventas'); // ventas
+  const colventas = collection(db, 'ventas');
   const counterDocRef = doc(db, 'counters', 'equiposCounter');
 
   // ---------------- DATATABLES ----------------
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         yBody += 10;
         pdf.setDrawColor(0);
         pdf.setLineWidth(0.5);
-        pdf.rect(15, yBody, 180, 80); 
+        pdf.rect(15, yBody, 180, 80);
 
         let yData = yBody + 10;
         pdf.setFontSize(12);
@@ -137,7 +137,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         yData += 8;
         pdf.text(`Observaciones: ${data.equipoObs}`, 20, yData);
 
-        // Guardar PDF
         pdf.save(`equipo_${newId}.pdf`);
       };
 
@@ -263,4 +262,30 @@ document.addEventListener('DOMContentLoaded', async () => {
       const d = docu.data();
       const fecha = d.fechaPresupuesto?.toDate ? d.fechaPresupuesto.toDate() : new Date();
       const mesAnio = fecha.toLocaleString('es-AR', { month: 'long', year: 'numeric' });
-      if (!mes
+      if (!meses[mesAnio]) meses[mesAnio] = 0;
+      meses[mesAnio] += d.precioFinal || 0;
+    });
+
+    // Ventas
+    const snapshotVentas = await getDocs(colventas);
+    snapshotVentas.forEach(docu => {
+      const v = docu.data();
+      const fecha = v.fechaVenta?.toDate ? v.fechaVenta.toDate() : new Date();
+      const mesAnio = fecha.toLocaleString('es-AR', { month: 'long', year: 'numeric' });
+      if (!meses[mesAnio]) meses[mesAnio] = 0;
+      meses[mesAnio] += (v.precio - v.gasto) || 0;
+    });
+
+    // Agregar al DataTable
+    Object.keys(meses).sort((a,b) => new Date(a) - new Date(b)).forEach(mes => {
+      tablaIngresos.row.add([mes, meses[mes].toFixed(2)]);
+    });
+    tablaIngresos.draw();
+  }
+
+  // ---------------- INICIALIZAR ----------------
+  cargarEquipos();
+  cargarPresupuestos();
+  cargarIngresos();
+
+});
