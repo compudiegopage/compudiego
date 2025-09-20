@@ -13,3 +13,7 @@ body{
 .btn-red:hover{ opacity: .9; }
 .text-muted{ color: #6b6b6b }
 #mensajeId, #mensajePresupuesto{ font-weight:700 }
+
+#imglogojs{
+  display: none;
+}
