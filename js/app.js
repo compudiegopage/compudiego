@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // --- LOGO CENTRADO ---
       const img = new Image();
-      img.src = 'img/Logo.jpg';
+      img.src = 'Logo.jpg';
       img.onload = () => {
         const imgWidth = 60;
         const imgHeight = (img.height * imgWidth) / img.width;
