@@ -2,6 +2,45 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebas
 import { 
   getFirestore, collection, addDoc, getDocs, serverTimestamp, query, orderBy, doc, getDoc, setDoc 
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+
+// -------------------- CONTROL DE ACCESO --------------------
+
+// Token secreto
+const SECRET_TOKEN = "17420820Compudiego";
+
+// Función para verificar acceso
+function verificarAcceso() {
+  // Revisamos si ya tenemos acceso guardado en localStorage
+  if (localStorage.getItem('adminAccess') === 'true') {
+    // Acceso ya concedido, ocultamos token de la URL
+    window.history.replaceState({}, document.title, "/administracion");
+    return true;
+  }
+
+  // Revisamos si viene token en la URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+
+  if (token === SECRET_TOKEN) {
+    // Guardamos acceso para futuras visitas
+    localStorage.setItem('adminAccess', 'true');
+    // Limpiamos la URL para que no quede visible
+    window.history.replaceState({}, document.title, "/administracion");
+    return true;
+  }
+
+  // Si no hay token válido, bloqueamos acceso
+  document.body.innerHTML = "<h2>Acceso denegado</h2>";
+  return false;
+}
+
+// Llamamos a la función al cargar la página
+if (verificarAcceso()) {
+  // Aquí va tu código de administración normal
+  console.log("Acceso autorizado. Mostrando contenido.");
+  // TODO: tu JS de Firebase, tablas, formularios, etc.
+}
+
 const { jsPDF } = window.jspdf;
 
 document.addEventListener('DOMContentLoaded', async () => {
