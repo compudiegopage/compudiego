@@ -83,74 +83,101 @@ document.addEventListener('DOMContentLoaded', async () => {
       alert('Equipo registrado con ID: ' + newId);
       formEquipo.reset();
       cargarEquipos();
+// ---------------- GENERAR PDF PROFESIONAL ----------------
+const pdf = new jsPDF();
 
-      // ---------------- GENERAR PDF PROFESIONAL ----------------
-      const pdf = new jsPDF();
+// --- ENCABEZADO ---
+pdf.setFontSize(11); // un poco más grande
+pdf.setFont("helvetica", "bold");
+const headerText = [
+  "Ingeniero Luparello Diego Ezequiel",
+  "Celular: +54 9 11 50186664 - compu.diego94@gmail.com",
+  "CUIT: 20382284578 - Domicilio: Calle 202 252, Berazategui, CP: 1884",
+  "Actividad AFIP: Servicios de informática N.C.P."
+];
+let yHeader = 10;
+headerText.forEach(line => {
+  pdf.text(line, 105, yHeader, { align: "center" });
+  yHeader += 5;
+});
 
-      // --- ENCABEZADO ---
-      pdf.setFontSize(10);
-      pdf.setFont("helvetica", "bold");
-      const headerText = [
-        "Ingeniero Luparello Diego Ezequiel",
-        "Celular: +54 9 11 50186664 - compu.diego94@gmail.com",
-        "CUIT: 20382284578 - Domicilio: Calle 202 252, Berazategui, CP: 1884",
-        "Actividad AFIP: Servicios de informática N.C.P."
-      ];
-      let yHeader = 10;
-      headerText.forEach(line => {
-        pdf.text(line, 105, yHeader, { align: "center" });
-        yHeader += 5;
-      });
+pdf.setLineWidth(0.5);
+pdf.line(15, yHeader, 195, yHeader);
+yHeader += 10;
 
-      pdf.setLineWidth(0.5);
-      pdf.line(15, yHeader, 195, yHeader);
-      yHeader += 10;
+// --- LOGO ---
+const img = new Image();
+img.src = 'img/Logo2.jpg';
+img.onload = () => {
+  const imgWidth = 90;
+  const imgHeight = (img.height * imgWidth) / img.width;
+  pdf.addImage(img, 'JPEG', (210 - imgWidth) / 2, yHeader, imgWidth, imgHeight);
 
-      // --- LOGO ---
-      const img = new Image();
-      img.src = 'img/Logo2.jpg';
-      img.onload = () => {
-        const imgWidth = 90;
-        const imgHeight = (img.height * imgWidth) / img.width;
-        pdf.addImage(img, 'JPEG', (210 - imgWidth) / 2, yHeader, imgWidth, imgHeight);
+  let yBody = yHeader + imgHeight + 10;
 
-        let yBody = yHeader + imgHeight + 10;
+  // --- FECHA ---
+  const fechaActual = new Date();
+  const fechaStr = fechaActual.toLocaleDateString('es-AR');
+  pdf.setFontSize(10);
+  pdf.text(`Fecha: ${fechaStr}`, 195, yBody, { align: "right" });
 
-        // --- FECHA ---
-        const fechaActual = new Date();
-        const fechaStr = fechaActual.toLocaleDateString('es-AR');
-        pdf.setFontSize(10);
-        pdf.text(`Fecha: ${fechaStr}`, 195, yBody, { align: "right" });
+  // CUADRO DATOS CLIENTE
+  yBody += 10;
+  pdf.setDrawColor(0);
+  pdf.setLineWidth(0.5);
+  pdf.rect(15, yBody, 180, 80);
 
-        // CUADRO DATOS CLIENTE
-        yBody += 10;
-        pdf.setDrawColor(0);
-        pdf.setLineWidth(0.5);
-        pdf.rect(15, yBody, 180, 80);
+  let yData = yBody + 10;
+  pdf.setFontSize(12);
+  pdf.setFont("helvetica", "bold");
+  pdf.text("Datos del Cliente y Equipo", 105, yData, { align: "center" });
+  yData += 10;
 
-        let yData = yBody + 10;
-        pdf.setFontSize(12);
-        pdf.setFont("helvetica", "bold");
-        pdf.text("Datos del Cliente y Equipo", 105, yData, { align: "center" });
-        yData += 10;
+  pdf.setFont("helvetica", "normal");
+  pdf.text(`Cliente: ${data.clienteNombre}`, 20, yData);
+  yData += 8;
+  pdf.text(`DNI: ${data.clienteDNI}`, 20, yData);
+  yData += 8;
+  pdf.text(`Teléfono: ${data.clienteTelefono}`, 20, yData);
+  yData += 8;
+  pdf.text(`Equipo: ${data.equipoTipo} ${data.equipoMarca} ${data.equipoModelo}`, 20, yData);
+  yData += 8;
+  pdf.text(`SN: ${data.equipoSN}`, 20, yData);
+  yData += 8;
+  pdf.text(`Falla: ${data.equipoFalla}`, 20, yData);
+  yData += 8;
+  pdf.text(`Observaciones: ${data.equipoObs}`, 20, yData);
 
-        pdf.setFont("helvetica", "normal");
-        pdf.text(`Cliente: ${data.clienteNombre}`, 20, yData);
-        yData += 8;
-        pdf.text(`DNI: ${data.clienteDNI}`, 20, yData);
-        yData += 8;
-        pdf.text(`Teléfono: ${data.clienteTelefono}`, 20, yData);
-        yData += 8;
-        pdf.text(`Equipo: ${data.equipoTipo} ${data.equipoMarca} ${data.equipoModelo}`, 20, yData);
-        yData += 8;
-        pdf.text(`SN: ${data.equipoSN}`, 20, yData);
-        yData += 8;
-        pdf.text(`Falla: ${data.equipoFalla}`, 20, yData);
-        yData += 8;
-        pdf.text(`Observaciones: ${data.equipoObs}`, 20, yData);
+  // --- TEXTO LEGAL / PROFESIONAL ---
+  let yLegal = yBody + 100; // Ajusta según espacio disponible
+  pdf.setFontSize(11); // un poco más grande
+  pdf.setFont("helvetica", "normal");
 
-        pdf.save(`equipo_${newId}.pdf`);
-      };
+  const textoLegal = [
+    "El equipo objeto de este presupuesto deberá ser retirado dentro de los 90 días de notificada su reparación.",
+    " ",
+    "Transcurrido este plazo, el cliente acepta la pérdida de derecho sobre el equipo, pudiendo la empresa disponer del mismo según su criterio.",
+    "",
+    "Al recibir este presupuesto, el cliente acepta los términos y condiciones aquí especificados, incluyendo plazos de retiro, forma de pago y garantías.",
+    "",
+    "Para consultas sobre el estado de la reparación, el cliente puede contactarse al número o correo indicado en este documento.",
+    " ",
+    "Se recomienda guardar este PDF como comprobante.",
+    "",
+    "Gracias por confiar en nuestros servicios. Nos esforzamos por brindar atención profesional, rápida y confiable. ¡Esperamos que su experiencia sea excelente!"
+  ];
+
+  const margenIzq = 15;
+  const anchoMax = 180; // para que no se salga del margen derecho
+  textoLegal.forEach((line, index) => {
+    pdf.text(line, margenIzq, yLegal + index * 6, { maxWidth: anchoMax });
+  });
+
+  // --- GUARDAR PDF CON NOMBRE DEL CLIENTE ---
+  const nombreArchivo = `Equipo_${data.clienteNombre.replace(/ /g, "_")}_${newId}.pdf`;
+  pdf.save(nombreArchivo);
+};
+
 
     } catch (error) {
       console.error("Error al registrar equipo:", error);
