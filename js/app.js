@@ -29,7 +29,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // data tables
   const tablaEquipos = $('#tablaEquipos').DataTable();
-  const tablaPresupuestos = $('#tablaPresupuestos').DataTable();
+  const tablaPresupuestos = $('#tablaPresupuestos').DataTable({
+    columns: [
+      { title: "Cliente" },
+      { title: "Fecha" },
+      { title: "ID" },
+      { title: "Reparación" },
+      { title: "Repuestos" },
+      { title: "Gastos" },
+      { title: "Precio Final" }
+    ]
+  });
   const tablaIngresos = $('#tablaIngresos').DataTable({
     columns: [
       { title: "Mes" },
@@ -38,7 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   const tablaCamaras = $('#tablaCamaras').DataTable();
 
-  // registrar equipo
+  // ---------------- REGISTRAR EQUIPO ----------------
   const formEquipo = document.getElementById('formEquipo');
   const mensajeId = document.getElementById('mensajeId');
 
@@ -77,7 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // ---------------- GENERAR PDF PROFESIONAL ----------------
       const pdf = new jsPDF();
 
-      // --- ENCABEZADO CENTRADO ---
+      // --- ENCABEZADO ---
       pdf.setFontSize(10);
       pdf.setFont("helvetica", "bold");
       const headerText = [
@@ -96,23 +106,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       pdf.line(15, yHeader, 195, yHeader);
       yHeader += 10;
 
-      // --- LOGO CENTRADO ---
+      // --- LOGO ---
       const img = new Image();
-      img.src = 'img/Logo.jpg';
+      img.src = 'img/Logo2.jpg';
       img.onload = () => {
-        const imgWidth = 60;
+        const imgWidth = 90;
         const imgHeight = (img.height * imgWidth) / img.width;
         pdf.addImage(img, 'JPEG', (210 - imgWidth) / 2, yHeader, imgWidth, imgHeight);
 
         let yBody = yHeader + imgHeight + 10;
 
-        // --- FECHA ABAJO A LA DERECHA ---
+        // --- FECHA ---
         const fechaActual = new Date();
         const fechaStr = fechaActual.toLocaleDateString('es-AR');
         pdf.setFontSize(10);
         pdf.text(`Fecha: ${fechaStr}`, 195, yBody, { align: "right" });
 
-        // CUADRO CON DATOS DEL CLIENTE Y EQUIPO 
+        // CUADRO DATOS CLIENTE
         yBody += 10;
         pdf.setDrawColor(0);
         pdf.setLineWidth(0.5);
@@ -148,7 +158,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // cargar equipos
+  // ---------------- CARGAR EQUIPOS ----------------
   async function cargarEquipos() {
     tablaEquipos.clear();
     const q = query(colequipos, orderBy('fechaIngreso'));
@@ -172,7 +182,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     tablaEquipos.draw();
   }
 
-  // registrar presupuesto
+  // ---------------- REGISTRAR PRESUPUESTO ----------------
   const formPresupuesto = document.getElementById('formPresupuesto');
   const mensajePresupuesto = document.getElementById('mensajePresupuesto');
 
@@ -203,28 +213,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // cargar presupuesto
+  // ---------------- CARGAR PRESUPUESTOS ----------------
   async function cargarPresupuestos() {
     tablaPresupuestos.clear();
     const q = query(colpresupuestos, orderBy('fechaPresupuesto'));
     const snapshot = await getDocs(q);
-    snapshot.forEach(docu => {
+
+    for (const docu of snapshot.docs) {
       const d = docu.data();
       const fecha = d.fechaPresupuesto?.toDate ? d.fechaPresupuesto.toDate().toLocaleString() : '';
+
+      // Obtener nombre del cliente
+      let clienteNombre = '';
+      if (d.equipoId) {
+        const equipoRef = query(colequipos, orderBy('idPropio'));
+        const equiposSnap = await getDocs(colequipos);
+        const equipoDoc = equiposSnap.docs.find(e => e.data().idPropio == d.equipoId);
+        if (equipoDoc) clienteNombre = equipoDoc.data().clienteNombre;
+      }
+
       tablaPresupuestos.row.add([
-        docu.id,
-        d.equipoId,
+        clienteNombre,
         fecha,
+        d.equipoId,
         d.reparacion,
         d.repuestos,
         d.gastos,
         d.precioFinal
       ]);
-    });
+    }
+
     tablaPresupuestos.draw();
   }
 
-  // registrar venta
+  // ---------------- REGISTRAR VENTA ----------------
   const formVenta = document.getElementById('formVenta');
   const mensajeVenta = document.getElementById('mensajeVenta');
 
@@ -253,7 +275,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // registrar camaras
+  // ---------------- REGISTRAR CAMARAS ----------------
   const formCamara = document.getElementById('formCamara');
   const mensajeCamara = document.getElementById('mensajeCamara');
 
@@ -261,12 +283,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
 
     const cam = {
-      clienteNombre: document.getElementById('camaraNombre').value,
-      clienteDNI: document.getElementById('camaraDNI').value,
-      clienteTelefono: document.getElementById('camaraTelefono').value,
+      clienteNombre: document.getElementById('camaraClienteNombre').value,
+      clienteDNI: document.getElementById('camaraClienteDNI').value,
+      clienteTelefono: document.getElementById('camaraClienteTelefono').value,
       cantidad: parseInt(document.getElementById('camaraCantidad').value) || 0,
       marca: document.getElementById('camaraMarca').value,
-      gastos: parseFloat(document.getElementById('camaraGastos').value) || 0,
+      gastos: parseFloat(document.getElementById('camaraGasto').value) || 0,
       precio: parseFloat(document.getElementById('camaraPrecio').value) || 0,
       fechaRegistro: serverTimestamp()
     };
@@ -284,7 +306,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // cargar camaras
+  // ---------------- CARGAR CAMARAS ----------------
   async function cargarCamaras() {
     tablaCamaras.clear();
     const q = query(colcamaras, orderBy('fechaRegistro'));
@@ -307,7 +329,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     tablaCamaras.draw();
   }
 
-  // cargar ingresos por mes
+  // ---------------- CARGAR INGRESOS ----------------
   async function cargarIngresos() {
     tablaIngresos.clear();
     const meses = {};
@@ -342,7 +364,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       meses[mesAnio] += (c.precio - c.gastos) || 0;
     });
 
-    // Agregar al DataTable
     Object.keys(meses).sort((a,b) => new Date(a) - new Date(b)).forEach(mes => {
       tablaIngresos.row.add([mes, meses[mes].toFixed(2)]);
     });
