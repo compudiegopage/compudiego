@@ -20,13 +20,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  // ---------------- COLECCIONES ----------------
+  // colecciones firebase
   const colequipos = collection(db, 'equipos');
   const colpresupuestos = collection(db, 'presupuestos');
   const colventas = collection(db, 'ventas');
   const counterDocRef = doc(db, 'counters', 'equiposCounter');
 
-  // ---------------- DATATABLES ----------------
+  // data tble
   const tablaEquipos = $('#tablaEquipos').DataTable();
   const tablaPresupuestos = $('#tablaPresupuestos').DataTable();
   const tablaIngresos = $('#tablaIngresos').DataTable({
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     ]
   });
 
-  // ---------------- REGISTRAR EQUIPO ----------------
+  // registrar equipo
   const formEquipo = document.getElementById('formEquipo');
   const mensajeId = document.getElementById('mensajeId');
 
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         pdf.setFontSize(10);
         pdf.text(`Fecha: ${fechaStr}`, 195, yBody, { align: "right" });
 
-        // --- CUADRO CON DATOS DEL CLIENTE Y EQUIPO ---
+        // CUADRO CON DATOS DEL CLIENTE Y EQUIPO 
         yBody += 10;
         pdf.setDrawColor(0);
         pdf.setLineWidth(0.5);
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // ---------------- CARGAR EQUIPOS ----------------
+  // cargar equipos
   async function cargarEquipos() {
     tablaEquipos.clear();
     const q = query(colequipos, orderBy('fechaIngreso'));
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     tablaEquipos.draw();
   }
 
-  // ---------------- REGISTRAR PRESUPUESTO ----------------
+  // registrar presupuesto
   const formPresupuesto = document.getElementById('formPresupuesto');
   const mensajePresupuesto = document.getElementById('mensajePresupuesto');
 
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // ---------------- CARGAR PRESUPUESTOS ----------------
+  // cargar presupuesto
   async function cargarPresupuestos() {
     tablaPresupuestos.clear();
     const q = query(colpresupuestos, orderBy('fechaPresupuesto'));
@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     tablaPresupuestos.draw();
   }
 
-  // ---------------- REGISTRAR VENTA ----------------
+  // registrar venta
   const formVenta = document.getElementById('formVenta');
   const mensajeVenta = document.getElementById('mensajeVenta');
 
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // ---------------- CARGAR INGRESOS POR MES ----------------
+  // cargar ingresos por mes
   async function cargarIngresos() {
     tablaIngresos.clear();
     const meses = {};
@@ -287,5 +287,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   cargarEquipos();
   cargarPresupuestos();
   cargarIngresos();
+
+  const btnAdrian = document.getElementById('btnAdrian');
+if (btnAdrian) {
+  btnAdrian.addEventListener('click', () => {
+    document.getElementById('clienteNombre').value = 'Adrian Fernandez';
+    document.getElementById('clienteDNI').value = '24515800';
+    document.getElementById('clienteTelefono').value = '+54 9 11 6993-7052';
+
+    mensajeId.textContent = 'Cliente Adrian cargado. Complete el resto.';
+    setTimeout(() => mensajeId.textContent = '', 3000);
+  });
+}
 
 });
