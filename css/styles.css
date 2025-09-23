@@ -17,3 +17,8 @@ body{
 #imglogojs{
   display: none;
 }
+
+.dataTables_wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
