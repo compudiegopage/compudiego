@@ -24,9 +24,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const colequipos = collection(db, 'equipos');
   const colpresupuestos = collection(db, 'presupuestos');
   const colventas = collection(db, 'ventas');
+  const colcamaras = collection(db, 'camaras');
   const counterDocRef = doc(db, 'counters', 'equiposCounter');
 
-  // data tble
+  // data tables
   const tablaEquipos = $('#tablaEquipos').DataTable();
   const tablaPresupuestos = $('#tablaPresupuestos').DataTable();
   const tablaIngresos = $('#tablaIngresos').DataTable({
@@ -35,6 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       { title: "Ingresos" }
     ]
   });
+  const tablaCamaras = $('#tablaCamaras').DataTable();
 
   // registrar equipo
   const formEquipo = document.getElementById('formEquipo');
@@ -251,6 +253,60 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // registrar camaras
+  const formCamara = document.getElementById('formCamara');
+  const mensajeCamara = document.getElementById('mensajeCamara');
+
+  formCamara.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const cam = {
+      clienteNombre: document.getElementById('camaraNombre').value,
+      clienteDNI: document.getElementById('camaraDNI').value,
+      clienteTelefono: document.getElementById('camaraTelefono').value,
+      cantidad: parseInt(document.getElementById('camaraCantidad').value) || 0,
+      marca: document.getElementById('camaraMarca').value,
+      gastos: parseFloat(document.getElementById('camaraGastos').value) || 0,
+      precio: parseFloat(document.getElementById('camaraPrecio').value) || 0,
+      fechaRegistro: serverTimestamp()
+    };
+
+    try {
+      await addDoc(colcamaras, cam);
+      mensajeCamara.textContent = `Registro de cámaras guardado`;
+      alert(`Registro de cámaras guardado`);
+      formCamara.reset();
+      cargarCamaras();
+      cargarIngresos();
+    } catch (error) {
+      console.error("Error al registrar camaras:", error);
+      alert("Ocurrió un error al registrar las cámaras.");
+    }
+  });
+
+  // cargar camaras
+  async function cargarCamaras() {
+    tablaCamaras.clear();
+    const q = query(colcamaras, orderBy('fechaRegistro'));
+    const snapshot = await getDocs(q);
+    snapshot.forEach(docu => {
+      const c = docu.data();
+      const fecha = c.fechaRegistro?.toDate ? c.fechaRegistro.toDate().toLocaleString() : '';
+      tablaCamaras.row.add([
+        docu.id,
+        fecha,
+        c.clienteNombre,
+        c.clienteDNI,
+        c.clienteTelefono,
+        c.cantidad,
+        c.marca,
+        c.gastos,
+        c.precio
+      ]);
+    });
+    tablaCamaras.draw();
+  }
+
   // cargar ingresos por mes
   async function cargarIngresos() {
     tablaIngresos.clear();
@@ -276,6 +332,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       meses[mesAnio] += (v.precio - v.gasto) || 0;
     });
 
+    // Cámaras
+    const snapshotCams = await getDocs(colcamaras);
+    snapshotCams.forEach(docu => {
+      const c = docu.data();
+      const fecha = c.fechaRegistro?.toDate ? c.fechaRegistro.toDate() : new Date();
+      const mesAnio = fecha.toLocaleString('es-AR', { month: 'long', year: 'numeric' });
+      if (!meses[mesAnio]) meses[mesAnio] = 0;
+      meses[mesAnio] += (c.precio - c.gastos) || 0;
+    });
+
     // Agregar al DataTable
     Object.keys(meses).sort((a,b) => new Date(a) - new Date(b)).forEach(mes => {
       tablaIngresos.row.add([mes, meses[mes].toFixed(2)]);
@@ -287,17 +353,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   cargarEquipos();
   cargarPresupuestos();
   cargarIngresos();
+  cargarCamaras();
 
+  // Botón Adrián
   const btnAdrian = document.getElementById('btnAdrian');
-if (btnAdrian) {
-  btnAdrian.addEventListener('click', () => {
-    document.getElementById('clienteNombre').value = 'Adrian Fernandez';
-    document.getElementById('clienteDNI').value = '24515800';
-    document.getElementById('clienteTelefono').value = '+54 9 11 6993-7052';
+  if (btnAdrian) {
+    btnAdrian.addEventListener('click', () => {
+      document.getElementById('clienteNombre').value = 'Adrian Fernandez';
+      document.getElementById('clienteDNI').value = '24515800';
+      document.getElementById('clienteTelefono').value = '+54 9 11 6993-7052';
 
-    mensajeId.textContent = 'Cliente Adrian cargado. Complete el resto.';
-    setTimeout(() => mensajeId.textContent = '', 3000);
-  });
-}
+      mensajeId.textContent = 'Cliente Adrian cargado. Complete el resto.';
+      setTimeout(() => mensajeId.textContent = '', 3000);
+    });
+  }
 
 });

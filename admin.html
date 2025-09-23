@@ -91,7 +91,7 @@
             </div>
             <div class="col-md-3 mb-3">
               <label>Repuestos</label>
-              <input required id="presupuestoRepuestos" type="text" class="form-control" value="" />
+              <input id="presupuestoRepuestos" type="text" class="form-control" value="" />
             </div>
             <div class="col-md-3 mb-3">
               <label>Gastos</label>
@@ -149,6 +149,50 @@
     </form>
   </div>
 </div>
+<!--camaras -->
+<div class="card mb-4" id="registrarCamaras">
+  <div class="card-header bg-red text-white">Registrar cámaras de seguridad</div>
+  <div class="card-body">
+    <form id="formCamara">
+      <div class="row">
+        <div class="col-md-2 mb-3">
+          <label for="camaraClienteDNI">DNI</label>
+          <input type="text" id="camaraClienteDNI" class="form-control" required>
+        </div>
+        <div class="col-md-3 mb-3">
+          <label for="camaraClienteNombre">Nombre</label>
+          <input type="text" id="camaraClienteNombre" class="form-control" required>
+        </div>
+        <div class="col-md-3 mb-3">
+          <label for="camaraClienteTelefono">Teléfono</label>
+          <input type="text" id="camaraClienteTelefono" class="form-control" required>
+        </div>
+        <div class="col-md-2 mb-3">
+          <label for="camaraCantidad">Cantidad</label>
+          <input type="number" id="camaraCantidad" class="form-control" required>
+        </div>
+        <div class="col-md-2 mb-3">
+          <label for="camaraMarca">Marca</label>
+          <input type="text" id="camaraMarca" class="form-control" required>
+        </div>
+        <div class="col-md-2 mb-3">
+          <label for="camaraGasto">Gastos</label>
+          <input type="number" id="camaraGasto" step="0.01" class="form-control" required>
+        </div>
+        <div class="col-md-2 mb-3">
+          <label for="camaraPrecio">Precio</label>
+          <input type="number" id="camaraPrecio" step="0.01" class="form-control" required>
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-red">Registrar cámaras</button>
+          <span id="mensajeCamara" class="ms-3 text-success"></span>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- consultas -->
 
     <div class="card mb-4" id="consultas">
       <div class="card-header bg-red text-white">Consultas</div>
