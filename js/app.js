@@ -154,17 +154,17 @@ img.onload = () => {
   pdf.setFont("helvetica", "normal");
 
   const textoLegal = [
-    "El equipo objeto de este presupuesto deberá ser retirado dentro de los 90 días de notificada su reparación.",
+    "El equipo objeto de este documento deberá ser retirado dentro de los 90 días de notificada su reparación.",
     " ",
     "Transcurrido este plazo, el cliente acepta la pérdida de derecho sobre el equipo, pudiendo la empresa disponer del mismo según su criterio.",
     "",
-    "Al recibir este presupuesto, el cliente acepta los términos y condiciones aquí especificados, incluyendo plazos de retiro, forma de pago y garantías.",
+    "Al recibir este documento, el cliente acepta los términos y condiciones aquí especificados, incluyendo plazos de retiro, forma de pago y garantías.",
     "",
     "Para consultas sobre el estado de la reparación, el cliente puede contactarse al número o correo indicado en este documento.",
     " ",
     "Se recomienda guardar este PDF como comprobante.",
     "",
-    "Gracias por confiar en nuestros servicios. Nos esforzamos por brindar atención profesional, rápida y confiable. ¡Esperamos que su experiencia sea excelente!"
+    "Gracias por confiar en nuestros servicios. Nos esforzamos por brindar atención profesional, rápida y confiable. ¡Esperamos que su experiencia sea satisfactoria!"
   ];
 
   const margenIzq = 15;
