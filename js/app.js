@@ -68,6 +68,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // data tables
   const tablaEquipos = $('#tablaEquipos').DataTable();
+  const tablaVentas = $('#tablaVentas').DataTable();
+
   const tablaPresupuestos = $('#tablaPresupuestos').DataTable({
     columns: [
       { title: "Cliente" },
@@ -396,7 +398,27 @@ img.onload = () => {
     });
     tablaCamaras.draw();
   }
-
+  // ---------------- CARGAR VENTAS ----------------
+  async function cargarVentas() {
+    tablaVentas.clear();
+    const q = query(colventas, orderBy('fechaVenta'));
+    const snapshot = await getDocs(q);
+    snapshot.forEach(docu => {
+      const c = docu.data();
+      const fecha = c.fechaVenta?.toDate ? c.fechaVenta.toDate().toLocaleString() : '';
+      tablaVentas.row.add([
+        docu.id,
+        fecha,
+        c.clienteNombre,
+        c.clienteDNI,
+        c.clienteTelefono,
+        c.productoVendido,
+        c.gasto,
+        c.precio
+      ]);
+    });
+    tablaVentas.draw();
+  }
   // ---------------- CARGAR INGRESOS ----------------
   async function cargarIngresos() {
     tablaIngresos.clear();
@@ -443,6 +465,7 @@ img.onload = () => {
   cargarPresupuestos();
   cargarIngresos();
   cargarCamaras();
+  cargarVentas();
 
   // Botón Adrián
   const btnAdrian = document.getElementById('btnAdrian');
