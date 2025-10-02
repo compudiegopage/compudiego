@@ -354,6 +354,7 @@ img.onload = () => {
       clienteTelefono: document.getElementById('camaraClienteTelefono').value,
       cantidad: parseInt(document.getElementById('camaraCantidad').value) || 0,
       marca: document.getElementById('camaraMarca').value,
+      observaciones: document.getElementById('camaraObservaciones').value,
       gastos: parseFloat(document.getElementById('camaraGasto').value) || 0,
       precio: parseFloat(document.getElementById('camaraPrecio').value) || 0,
       fechaRegistro: serverTimestamp()
@@ -388,6 +389,7 @@ img.onload = () => {
         c.clienteTelefono,
         c.cantidad,
         c.marca,
+        c.observaciones,
         c.gastos,
         c.precio
       ]);
