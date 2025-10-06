@@ -384,7 +384,6 @@ img.onload = () => {
       const c = docu.data();
       const fecha = c.fechaRegistro?.toDate ? c.fechaRegistro.toDate().toLocaleString() : '';
       tablaCamaras.row.add([
-        docu.id,
         fecha,
         c.clienteNombre,
         c.clienteDNI,
@@ -407,7 +406,6 @@ img.onload = () => {
       const c = docu.data();
       const fecha = c.fechaVenta?.toDate ? c.fechaVenta.toDate().toLocaleString() : '';
       tablaVentas.row.add([
-        docu.id,
         fecha,
         c.clienteNombre,
         c.clienteDNI,
@@ -454,10 +452,14 @@ img.onload = () => {
       meses[mesAnio] += (c.precio - c.gastos) || 0;
     });
 
-    Object.keys(meses).sort((a,b) => new Date(a) - new Date(b)).forEach(mes => {
-      tablaIngresos.row.add([mes, meses[mes].toFixed(2)]);
-    });
-    tablaIngresos.draw();
+    Object.keys(meses)
+  .sort((a, b) => new Date(a) - new Date(b))
+  .forEach(mes => {
+    const valorFormateado = '$ ' + Math.round(meses[mes]).toLocaleString('es-AR');
+    tablaIngresos.row.add([mes, valorFormateado]);
+  });
+tablaIngresos.draw();
+
   }
 
   // ---------------- INICIALIZAR ----------------
