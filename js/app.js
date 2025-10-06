@@ -3,12 +3,12 @@ import {
   getFirestore, collection, addDoc, getDocs, serverTimestamp, query, orderBy, doc, getDoc, setDoc 
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 
-// -------------------- CONTROL DE ACCESO --------------------
+//acceso
 
-// Token secreto
+// Token 
 const SECRET_TOKEN = "17420820Compudiego";
 
-// Función para verificar acceso
+// Funcion para verificar acceso
 function verificarAcceso() {
   // Revisamos si ya tenemos acceso guardado en localStorage
   if (localStorage.getItem('adminAccess') === 'true') {
@@ -22,23 +22,23 @@ function verificarAcceso() {
   const token = urlParams.get('token');
 
   if (token === SECRET_TOKEN) {
-    // Guardamos acceso para futuras visitas
+    // guardamos acceso para futuras visitas
     localStorage.setItem('adminAccess', 'true');
-    // Limpiamos la URL para que no quede visible
+    // Limpamos la URL para que no quede visible
     window.history.replaceState({}, document.title, "/administracion");
     return true;
   }
 
-  // Si no hay token válido, bloqueamos acceso
+  // Si no hay token valido, bloqueamos acceso
   document.body.innerHTML = "<h2>Acceso denegado</h2>";
   return false;
 }
 
-// Llamamos a la función al cargar la página
+// Llamamos a la funcion al cargar la página
 if (verificarAcceso()) {
-  // Aquí va tu código de administración normal
+  
   console.log("Acceso autorizado. Mostrando contenido.");
-  // TODO: tu JS de Firebase, tablas, formularios, etc.
+
 }
 
 const { jsPDF } = window.jspdf;
@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const tablaVentas = $('#tablaVentas').DataTable();
 
   const tablaPresupuestos = $('#tablaPresupuestos').DataTable({
+    
     columns: [
       { title: "Cliente" },
       { title: "Fecha" },
@@ -89,7 +90,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   const tablaCamaras = $('#tablaCamaras').DataTable();
 
-  // ---------------- REGISTRAR EQUIPO ----------------
+  // reg equipo
   const formEquipo = document.getElementById('formEquipo');
   const mensajeId = document.getElementById('mensajeId');
 
@@ -124,11 +125,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       alert('Equipo registrado con ID: ' + newId);
       formEquipo.reset();
       cargarEquipos();
-// ---------------- GENERAR PDF PROFESIONAL ----------------
+// GENERAR PDF
 const pdf = new jsPDF();
 
 // --- ENCABEZADO ---
-pdf.setFontSize(11); // un poco más grande
+pdf.setFontSize(11); 
 pdf.setFont("helvetica", "bold");
 const headerText = [
   "Ingeniero Luparello Diego Ezequiel",
@@ -189,7 +190,7 @@ img.onload = () => {
   yData += 8;
   pdf.text(`Observaciones: ${data.equipoObs}`, 20, yData);
 
-  // --- TEXTO LEGAL / PROFESIONAL ---
+  //TEXTO LEGAL
   let yLegal = yBody + 100; // Ajusta según espacio disponible
   pdf.setFontSize(11); // un poco más grande
   pdf.setFont("helvetica", "normal");
@@ -209,7 +210,7 @@ img.onload = () => {
   ];
 
   const margenIzq = 15;
-  const anchoMax = 180; // para que no se salga del margen derecho
+  const anchoMax = 180; 
   textoLegal.forEach((line, index) => {
     pdf.text(line, margenIzq, yLegal + index * 6, { maxWidth: anchoMax });
   });
@@ -226,7 +227,7 @@ img.onload = () => {
     }
   });
 
-  // ---------------- CARGAR EQUIPOS ----------------
+  // cargar equipos
   async function cargarEquipos() {
     tablaEquipos.clear();
     const q = query(colequipos, orderBy('fechaIngreso'));
@@ -250,7 +251,7 @@ img.onload = () => {
     tablaEquipos.draw();
   }
 
-  // ---------------- REGISTRAR PRESUPUESTO ----------------
+  // reg presupuesto
   const formPresupuesto = document.getElementById('formPresupuesto');
   const mensajePresupuesto = document.getElementById('mensajePresupuesto');
 
@@ -281,7 +282,7 @@ img.onload = () => {
     }
   });
 
-  // ---------------- CARGAR PRESUPUESTOS ----------------
+  // cargar presupuestos
   async function cargarPresupuestos() {
     tablaPresupuestos.clear();
     const q = query(colpresupuestos, orderBy('fechaPresupuesto'));
@@ -314,7 +315,7 @@ img.onload = () => {
     tablaPresupuestos.draw();
   }
 
-  // ---------------- REGISTRAR VENTA ----------------
+  // reg venta
   const formVenta = document.getElementById('formVenta');
   const mensajeVenta = document.getElementById('mensajeVenta');
 
@@ -343,7 +344,7 @@ img.onload = () => {
     }
   });
 
-  // ---------------- REGISTRAR CAMARAS ----------------
+  // registrar camaras
   const formCamara = document.getElementById('formCamara');
   const mensajeCamara = document.getElementById('mensajeCamara');
 
@@ -375,7 +376,7 @@ img.onload = () => {
     }
   });
 
-  // ---------------- CARGAR CAMARAS ----------------
+  // cargar camaras
   async function cargarCamaras() {
     tablaCamaras.clear();
     const q = query(colcamaras, orderBy('fechaRegistro'));
@@ -397,7 +398,7 @@ img.onload = () => {
     });
     tablaCamaras.draw();
   }
-  // ---------------- CARGAR VENTAS ----------------
+  // cargar ventas
   async function cargarVentas() {
     tablaVentas.clear();
     const q = query(colventas, orderBy('fechaVenta'));
@@ -417,7 +418,7 @@ img.onload = () => {
     });
     tablaVentas.draw();
   }
-  // ---------------- CARGAR INGRESOS ----------------
+  // cargar ingresos
   async function cargarIngresos() {
     tablaIngresos.clear();
     const meses = {};
@@ -462,14 +463,14 @@ tablaIngresos.draw();
 
   }
 
-  // ---------------- INICIALIZAR ----------------
+  // inicializo funciones
   cargarEquipos();
   cargarPresupuestos();
   cargarIngresos();
   cargarCamaras();
   cargarVentas();
 
-  // Botón Adrián
+  // Botón Adrian
   const btnAdrian = document.getElementById('btnAdrian');
   if (btnAdrian) {
     btnAdrian.addEventListener('click', () => {
