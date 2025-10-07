@@ -82,13 +82,58 @@ document.addEventListener('DOMContentLoaded', async () => {
       { title: "Precio Final" }
     ]
   });
-  const tablaIngresos = $('#tablaIngresos').DataTable({
-    columns: [
-      { title: "Mes" },
-      { title: "Ingresos" }
-    ]
-  });
-  const tablaCamaras = $('#tablaCamaras').DataTable();
+const tablaCamaras = $('#tablaCamaras').DataTable({
+  columns: [
+    { title: 'Fecha' },
+    { title: 'Nombre' },
+    { title: 'DNI' },
+    { title: 'Telefono' },
+    { title: 'Cantidad' },
+    { title: 'Marca' },
+    { title: 'Observaciones' },
+    { title: 'Gastos' },
+    { title: 'Precios' }
+  ],
+  columnDefs: [
+    {
+      targets: 6, // columna Observaciones
+      width: "300px",
+      render: function (data, type) {
+        if (type === 'display' && data && data.length > 60) {
+          // texto recortado con botón
+          return `
+            <div class="texto-colapsado">${data.substring(0, 60)}...</div>
+            <div class="texto-completo oculto">${data}</div>
+            <button class="btn-toggle-texto">Ver más</button>
+          `;
+        }
+        return data || '';
+      }
+    }
+  ]
+});
+
+// comportamiento del botón “Ver más / Ver menos”
+$('#tablaCamaras').on('click', '.btn-toggle-texto', function () {
+  const celda = $(this).closest('td');
+  const textoColapsado = celda.find('.texto-colapsado');
+  const textoCompleto = celda.find('.texto-completo');
+  const boton = $(this);
+
+  if (textoCompleto.hasClass('oculto')) {
+    // mostrar texto completo
+    textoColapsado.hide();
+    textoCompleto.removeClass('oculto');
+    boton.text('Ver menos');
+  } else {
+    // volver a colapsar
+    textoCompleto.addClass('oculto');
+    textoColapsado.show();
+    boton.text('Ver más');
+  }
+});
+
+
 
   // reg equipo
   const formEquipo = document.getElementById('formEquipo');

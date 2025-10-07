@@ -22,3 +22,45 @@ body{
   width: 100%;
   overflow-x: auto;
 }
+
+.observaciones-column {
+  height: 100px;
+  overflow-y: scroll;
+}
+
+.observaciones-column-xs {
+  height: 120px !important;
+  overflow-y: scroll;
+}
+
+.texto-colapsado {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.texto-completo.oculto {
+  display: none;
+}
+
+.btn-toggle-texto {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.9em;
+  margin-top: 4px;
+}
+
+.btn-toggle-texto:hover {
+  text-decoration: underline;
+}
+
+#tablaCamaras td:nth-child(7), /* 7ma columna (Observaciones) */
+#tablaCamaras th:nth-child(7) {
+  width: 300px;
+  max-width: 300px;
+  word-wrap: break-word;
+}
