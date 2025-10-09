@@ -670,5 +670,21 @@ tablaIngresos.draw();
       setTimeout(() => mensajeId.textContent = '', 3000);
     });
   }
+// Botón "Subir arriba"
+const btnSubir = document.getElementById("btnSubir");
+
+// Mostrar/ocultar según el scroll
+window.onscroll = function() {
+  if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+    btnSubir.style.display = "block";
+  } else {
+    btnSubir.style.display = "none";
+  }
+};
+
+// Volver arriba cuando se hace clic
+btnSubir.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
 
 });

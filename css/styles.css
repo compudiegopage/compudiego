@@ -65,3 +65,26 @@ body{
   word-wrap: break-word;
 }
 
+/* Botón flotante de subir */
+#btnSubir {
+  display: none; /* Oculto por defecto */
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  z-index: 100;
+  font-size: 20px;
+  background-color: var(--rojo); /* color de detalle */
+  color: #222;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+}
+
+#btnSubir:hover {
+  background-color: #c7a689;
+  transform: scale(1.1);
+}
