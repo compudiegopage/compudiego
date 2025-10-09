@@ -10,29 +10,32 @@ const SECRET_TOKEN = "17420820Compudiego";
 
 // Funcion para verificar acceso
 function verificarAcceso() {
-  // Revisamos si ya tenemos acceso guardado en localStorage
   if (localStorage.getItem('adminAccess') === 'true') {
-    // Acceso ya concedido, ocultamos token de la URL
-    window.history.replaceState({}, document.title, "/administracion");
+    // no cambiamos la ruta, solo borramos query string si queda algo
+    const cleanUrl = window.location.pathname + window.location.hash;
+    window.history.replaceState({}, document.title, cleanUrl);
     return true;
   }
 
-  // Revisamos si viene token en la URL
   const urlParams = new URLSearchParams(window.location.search);
   const token = urlParams.get('token');
 
   if (token === SECRET_TOKEN) {
-    // guardamos acceso para futuras visitas
     localStorage.setItem('adminAccess', 'true');
-    // Limpamos la URL para que no quede visible
-    window.history.replaceState({}, document.title, "/administracion");
+
+    // eliminamos solo el parámetro token y preservamos otros query params
+    urlParams.delete('token');
+    const newSearch = urlParams.toString();
+    const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
+
+    window.history.replaceState({}, document.title, newUrl);
     return true;
   }
 
-  // Si no hay token valido, bloqueamos acceso
   document.body.innerHTML = "<h2>Acceso denegado</h2>";
   return false;
 }
+
 
 // Llamamos a la funcion al cargar la página
 if (verificarAcceso()) {
@@ -69,6 +72,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   // data tables
   const tablaEquipos = $('#tablaEquipos').DataTable();
   const tablaVentas = $('#tablaVentas').DataTable();
+const tablaIngresos = $('#tablaIngresos').DataTable({
+  columns: [
+    { title: "Mes" },
+    { title: "Ingresos" }
+  ]
+});
 
   const tablaPresupuestos = $('#tablaPresupuestos').DataTable({
     
@@ -83,6 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     ]
   });
 const tablaCamaras = $('#tablaCamaras').DataTable({
+
   columns: [
     { title: 'Fecha' },
     { title: 'Nombre' },
@@ -99,10 +109,10 @@ const tablaCamaras = $('#tablaCamaras').DataTable({
       targets: 6, // columna Observaciones
       width: "300px",
       render: function (data, type) {
-        if (type === 'display' && data && data.length > 60) {
+        if (type === 'display' && data && data.length > 30) {
           // texto recortado con botón
           return `
-            <div class="texto-colapsado">${data.substring(0, 60)}...</div>
+            <div class="texto-colapsado">${data.substring(0, 20)}...</div>
             <div class="texto-completo oculto">${data}</div>
             <button class="btn-toggle-texto">Ver más</button>
           `;
