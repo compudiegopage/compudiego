@@ -70,8 +70,68 @@ document.addEventListener('DOMContentLoaded', async () => {
   const counterDocRef = doc(db, 'counters', 'equiposCounter');
 
   // data tables
-  const tablaEquipos = $('#tablaEquipos').DataTable();
-  const tablaVentas = $('#tablaVentas').DataTable();
+  const tablaEquipos = $('#tablaEquipos').DataTable({
+    columns:[
+      {
+        title: "ID",
+        title: "Fecha",
+        title: "Nombre",
+        title: "DNI",
+        title: "Tel",
+        title: "Tipo",
+        title: "Marca",
+        title: "Modelo",
+        title: "SN",
+        title: "Falla"
+      }
+    ],
+    columnDefs: [
+    {
+      targets: 9, // columna Observaciones
+      width: "300px",
+      render: function (data, type) {
+        if (type === 'display' && data && data.length > 30) {
+          // texto recortado con botón
+          return `
+            <div class="texto-colapsado">${data.substring(0, 20)}...</div>
+            <div class="texto-completo oculto">${data}</div>
+            <button class="btn-toggle-texto">Ver más</button>
+          `;
+        }
+        return data || '';
+      }
+    }
+  ]
+  });
+  const tablaVentas = $('#tablaVentas').DataTable({
+    columns: [
+  { title: "Fecha" },
+  { title: "Nombre" },
+  { title: "DNI" },
+  { title: "Tel" },
+  { title: "Producto/Servicio" },
+  { title: "Gastos" },
+  { title: "Precios" }
+],
+
+          columnDefs: [
+    {
+      targets: 4, // columna Observaciones
+      width: "300px",
+      render: function (data, type) {
+        if (type === 'display' && data && data.length > 30) {
+          // texto recortado con botón
+          return `
+            <div class="texto-colapsado">${data.substring(0, 20)}...</div>
+            <div class="texto-completo oculto">${data}</div>
+            <button class="btn-toggle-texto">Ver más</button>
+          `;
+        }
+        return data || '';
+      }
+    }
+  ]
+  });
 const tablaIngresos = $('#tablaIngresos').DataTable({
   columns: [
     { title: "Mes" },
@@ -89,7 +149,24 @@ const tablaIngresos = $('#tablaIngresos').DataTable({
       { title: "Repuestos" },
       { title: "Gastos" },
       { title: "Precio Final" }
-    ]
+    ],
+      columnDefs: [
+    {
+      targets: 3, // columna Observaciones
+      width: "300px",
+      render: function (data, type) {
+        if (type === 'display' && data && data.length > 30) {
+          // texto recortado con botón
+          return `
+            <div class="texto-colapsado">${data.substring(0, 20)}...</div>
+            <div class="texto-completo oculto">${data}</div>
+            <button class="btn-toggle-texto">Ver más</button>
+          `;
+        }
+        return data || '';
+      }
+    }
+  ]
   });
 const tablaCamaras = $('#tablaCamaras').DataTable({
 
@@ -143,6 +220,62 @@ $('#tablaCamaras').on('click', '.btn-toggle-texto', function () {
   }
 });
 
+$('#tablaPresupuestos').on('click', '.btn-toggle-texto', function () {
+  const celda = $(this).closest('td');
+  const textoColapsado = celda.find('.texto-colapsado');
+  const textoCompleto = celda.find('.texto-completo');
+  const boton = $(this);
+
+  if (textoCompleto.hasClass('oculto')) {
+    // mostrar texto completo
+    textoColapsado.hide();
+    textoCompleto.removeClass('oculto');
+    boton.text('Ver menos');
+  } else {
+    // volver a colapsar
+    textoCompleto.addClass('oculto');
+    textoColapsado.show();
+    boton.text('Ver más');
+  }
+});
+
+$('#tablaEquipos').on('click', '.btn-toggle-texto', function () {
+  const celda = $(this).closest('td');
+  const textoColapsado = celda.find('.texto-colapsado');
+  const textoCompleto = celda.find('.texto-completo');
+  const boton = $(this);
+
+  if (textoCompleto.hasClass('oculto')) {
+    // mostrar texto completo
+    textoColapsado.hide();
+    textoCompleto.removeClass('oculto');
+    boton.text('Ver menos');
+  } else {
+    // volver a colapsar
+    textoCompleto.addClass('oculto');
+    textoColapsado.show();
+    boton.text('Ver más');
+  }
+});
+
+$('#tablaVentas').on('click', '.btn-toggle-texto', function () {
+  const celda = $(this).closest('td');
+  const textoColapsado = celda.find('.texto-colapsado');
+  const textoCompleto = celda.find('.texto-completo');
+  const boton = $(this);
+
+  if (textoCompleto.hasClass('oculto')) {
+    // mostrar texto completo
+    textoColapsado.hide();
+    textoCompleto.removeClass('oculto');
+    boton.text('Ver menos');
+  } else {
+    // volver a colapsar
+    textoCompleto.addClass('oculto');
+    textoColapsado.show();
+    boton.text('Ver más');
+  }
+});
 
 
   // reg equipo
