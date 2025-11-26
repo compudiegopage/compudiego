@@ -54,6 +54,8 @@
       <div class="product-info">
         <h1 id="prodTitle">Cargando...</h1>
         <div id="prodShort" class="prod-short"></div>
+        <div id="prodPrice" class="product-price" style="font-size:20px; font-weight:700; color:var(--rojo); margin-bottom:15px;"></div>
+
         <div id="prodDesc" class="product-desc"> </div>
 
         <div class="product-actions">
@@ -122,6 +124,14 @@
         document.getElementById('prodShort').innerText = data.short || '';
         document.getElementById('prodDesc').innerText = data.description || '';
         document.getElementById('prodLoader').style.display = 'none';
+        const priceEl = document.getElementById('prodPrice');
+if(data.price && data.price.trim() !== '') {
+    priceEl.innerText = data.price;
+    priceEl.style.display = 'block';
+} else {
+    priceEl.style.display = 'none';
+}
+
 
         const mainImage = document.getElementById('mainImage');
         const thumbs = document.getElementById('thumbs');
