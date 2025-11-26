@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alta de Productos - CompuDiego</title>
+<link rel="stylesheet" href="css/styles.css">
+
+<!-- Firebase -->
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAOoiijfHGXIuZ5uYzbyL4-BkOgbp-dO58",
+  authDomain: "compudiegopage.firebaseapp.com",
+  projectId: "compudiegopage",
+  storageBucket: "compudiegopage.firebasestorage.app",
+  messagingSenderId: "294790280990",
+  appId: "1:294790280990:web:a1bcf94d1f6014d4dd3b0f",
+  measurementId: "G-BECVH7TMPW"
+};
+
+const app = initializeApp(firebaseConfig);
+window.db = getFirestore(app);
+</script>
+
+</head>
+<body>
+
+<!-- NAVBAR -->
+
+<header class="navbar">
+    <div class="nav-container">
+        <a href="index.html" class="nav-logo">
+            <img src="img/Logo2.jpg" alt="CompuDiego">
+        </a>
+        <button class="nav-toggle" id="navToggle">
+            <span></span><span></span><span></span>
+        </button>
+        <nav class="nav-menu" id="navMenu">
+            <ul>
+                <li><a href="index.html#home">Home</a></li>
+                <li><a href="index.html#quienes">Quienes Somos</a></li>
+                <li><a href="index.html#servicios">Servicios</a></li>
+                <li><a href="productos.html">Productos</a></li>
+                <li><a href="index.html#contacto">Contacto</a></li>
+                <li class="socials">
+                  <a href="https://www.instagram.com/compu.diego/" target="_blank"><img src="img/instagram.png" alt="Instagram"></a>
+                  <a href="https://www.facebook.com/Compu.Diego.Argentina" target="_blank"><img src="img/facebook.png" alt="Facebook"></a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<!-- FORMULARIO DE ALTA DE PRODUCTOS -->
+
+<section class="contacto" style="padding:50px 20px;background:#f8f8f8;">
+  <div class="contacto-container" style="flex-direction:column;max-width:800px;margin:auto;">
+    <h1 style="margin-bottom:30px;text-align:center;color:#d40000;">Alta de Productos</h1>
+    <form id="productForm" style="display:flex;flex-direction:column;gap:15px;background:white;padding:25px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);">
+      <label>Título del Producto</label>
+      <input type="text" id="title" required>
+  <label>Resumen Corto</label>
+  <input type="text" id="short">
+
+  <label>Descripción Completa</label>
+  <textarea id="description" rows="5" required></textarea>
+
+  <label>Precio</label>
+  <input type="text" id="price" >
+
+  <label>URLs de Imágenes (separadas por coma)</label>
+  <input type="text" id="images" placeholder="https://... , https://...">
+
+  <button type="submit" style="padding:12px;background:#d40000;color:white;border:none;border-radius:5px;cursor:pointer;">Guardar Producto</button>
+  <p id="status" style="margin-top:10px;font-weight:bold;"></p>
+</form>
+
+  </div>
+</section>
+
+<!-- WHATSAPP -->
+
+<a href="https://wa.me/541150186664" class="whatsapp-btn" target="_blank"><img src="img/WhatsApp.svg.png" alt=""></a>
+
+<script type="module">
+import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+const form = document.getElementById("productForm");
+const status = document.getElementById("status");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const title = document.getElementById("title").value.trim();
+  const short = document.getElementById("short").value.trim();
+  const description = document.getElementById("description").value.trim();
+  const price = document.getElementById("price").value.trim();
+  const imagesRaw = document.getElementById("images").value.trim();
+  const images = imagesRaw.split(",").map(url => url.trim()).filter(url => url !== "");
+
+  if(!title || !short || !description || !price) {
+    status.style.color = "red";
+    status.textContent = "Todos los campos son obligatorios.";
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "products"), {
+      title,
+      short,
+      description,
+      price,
+      images,
+      createdAt: serverTimestamp()
+    });
+    status.style.color = "green";
+    status.textContent = "Producto guardado correctamente!";
+    form.reset();
+  } catch(err) {
+    console.error(err);
+    status.style.color = "red";
+    status.textContent = "Error al guardar el producto.";
+  }
+});
+</script>
+
+<!-- FOOTER -->
+
+<footer class="footer">
+    <div class="footer-container">
+        <div class="dato-item">
+            <i class="fas fa-map-marker-alt"></i>
+            <p><strong>Dirección</strong><br>Calle 202 N°252, Sourigues, Berazategui, Bs. As.</p>
+        </div>
+        <div class="dato-item">
+            <i class="fas fa-phone-alt"></i>
+            <p><strong>Celular</strong><br>541150186664</p>
+        </div>
+        <div class="dato-item">
+            <i class="fas fa-envelope"></i>
+            <p><strong>Email</strong><br>Compudiego@live.com</p>
+        </div>
+        <div class="dato-item">
+            <i class="fas fa-clock"></i>
+            <p><strong>Horario</strong><br>Lunes a Viernes de 10hs a 19hs</p>
+        </div>
+    </div>
+</footer>
+
+<script src="js/script.js"></script>
+
+</body>
+</html>

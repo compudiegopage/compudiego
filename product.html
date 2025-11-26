@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Producto - Compudiego</title>
+          <link rel="icon" type="image/png" href="img/favicon.jfif" sizes="32x32">  
+
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .product-wrap { max-width: 1100px; margin: 30px auto; padding: 0 20px; display:flex; gap:30px; }
+    .product-gallery { flex:1; border-radius:12px; overflow:hidden; background:#fff; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+    .product-gallery img { width:100%; height:420px; object-fit:cover; display:block; }
+    .thumbs { display:flex; gap:8px; padding:12px; overflow-x:auto; }
+    .thumbs img { width:90px; height:64px; object-fit:cover; border-radius:8px; cursor:pointer; }
+    .product-info { flex:1; display:flex; flex-direction:column; }
+    .product-info h1 { margin-bottom:12px; color:var(--rojo); }
+    .product-desc { flex:1; color:#333; line-height:1.6; margin-bottom:18px; }
+    .product-actions { display:flex; gap:12px; align-items:center; }
+    .btn-primary { background:var(--rojo); color:#fff; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:700; }
+    .btn-ghost { border:1px solid #ddd; padding:8px 12px; border-radius:8px; text-decoration:none; color:#333; }
+    @media (max-width:900px) {
+      .product-wrap { flex-direction:column; }
+      .product-gallery img { height:260px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- navbar same as before -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo"><img src="img/Logo2.jpg" alt="Compudiego"></a>
+      <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+      <nav class="nav-menu" id="navMenu">
+        <ul>
+          <li><a href="index.html#home">Home</a></li>
+          <li><a href="index.html#quienes">Quienes Somos</a></li>
+          <li><a href="index.html#servicios">Servicios</a></li>
+          <li><a href="productos.html">Productos</a></li>
+          <li><a href="index.html#contacto">Contacto</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div id="productContainer" class="product-wrap">
+      <div class="product-gallery">
+        <img id="mainImage" src="/img/placeholder.png" alt="Producto">
+        <div class="thumbs" id="thumbs"></div>
+      </div>
+
+      <div class="product-info">
+        <h1 id="prodTitle">Cargando...</h1>
+        <div id="prodShort" class="prod-short"></div>
+        <div id="prodDesc" class="product-desc"> </div>
+
+        <div class="product-actions">
+          <a id="whatsappBtn" class="btn-primary" href="#" target="_blank">Consultar por WhatsApp</a>
+          <a id="backBtn" class="btn-ghost" href="productos.html">Volver</a>
+        </div>
+      </div>
+    </div>
+
+    <div id="prodLoader" style="text-align:center; padding:30px;">Cargando producto…</div>
+  </main>
+
+  <a href="https://wa.me/541150186664" class="whatsapp-btn" target="_blank"><img src="/img/WhatsApp.svg.png" alt=""></a>
+
+  <footer class="footer">
+    <!-- copia de tu footer -->
+    <div class="footer-container">
+      <div class="dato-item"><i class="fas fa-map-marker-alt"></i><p><strong>Dirección</strong><br>Calle 202 N°252, Sourigues, Berazategui</p></div>
+      <div class="dato-item"><i class="fas fa-phone-alt"></i><p><strong>Celular</strong><br>11 5018 6664</p></div>
+      <div class="dato-item"><i class="fas fa-envelope"></i><p><strong>Email</strong><br>compudiego@live.com</p></div>
+      <div class="dato-item"><i class="fas fa-clock"></i><p><strong>Horario</strong><br>Lunes a Viernes 10-19</p></div>
+    </div>
+  </footer>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOoiijfHGXIuZ5uYzbyL4-BkOgbp-dO58",
+      authDomain: "compudiegopage.firebaseapp.com",
+      projectId: "compudiegopage",
+      storageBucket: "compudiegopage.appspot.com",
+      messagingSenderId: "294790280990",
+      appId: "1:294790280990:web:a1bcf94d1f6014d4dd3b0f",
+      measurementId: "G-BECVH7TMPW"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // obtener id de querystring ?id=...
+    function getIdFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
+    }
+
+    async function loadProduct() {
+      const id = getIdFromURL();
+      if (!id) {
+        document.getElementById('productContainer').style.display = 'none';
+        document.getElementById('prodLoader').innerText = 'Producto no encontrado.';
+        return;
+      }
+
+      try {
+        const ref = doc(db, 'products', id);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) {
+          document.getElementById('productContainer').style.display = 'none';
+          document.getElementById('prodLoader').innerText = 'Producto no encontrado.';
+          return;
+        }
+
+        const data = snap.data();
+        document.getElementById('prodTitle').innerText = data.title || '';
+        document.getElementById('prodShort').innerText = data.short || '';
+        document.getElementById('prodDesc').innerText = data.description || '';
+        document.getElementById('prodLoader').style.display = 'none';
+
+        const mainImage = document.getElementById('mainImage');
+        const thumbs = document.getElementById('thumbs');
+
+        const imgs = (data.images && data.images.length) ? data.images : ['/img/placeholder.png'];
+        mainImage.src = imgs[0];
+
+        thumbs.innerHTML = '';
+        imgs.forEach((u,i) => {
+          const t = document.createElement('img');
+          t.src = u;
+          t.loading = 'lazy';
+          t.alt = data.title + ' ' + (i+1);
+          t.addEventListener('click', () => mainImage.src = u);
+          thumbs.appendChild(t);
+        });
+
+        // whatsapp button con texto prellenado
+        const waBtn = document.getElementById('whatsappBtn');
+        const text = encodeURIComponent(`Hola, quiero consultar por el producto: ${data.title}`);
+        waBtn.href = `https://wa.me/541150186664?text=${text}`;
+
+      } catch (e) {
+        console.error(e);
+        document.getElementById('productContainer').style.display = 'none';
+        document.getElementById('prodLoader').innerText = 'Error al cargar el producto.';
+      }
+    }
+
+    loadProduct();
+
+    // menú hamburguesa (misma lógica)
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggle = document.getElementById('navToggle');
+      const menu = document.getElementById('navMenu');
+      if(toggle){
+        toggle.addEventListener('click', () => {
+          toggle.classList.toggle('active');
+          menu.classList.toggle('open');
+          document.body.classList.toggle('no-scroll');
+        });
+      }
+    });
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" crossorigin="anonymous"></script>
+</body>
+</html>

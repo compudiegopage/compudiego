@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Productos - Compudiego</title>
+<link rel="icon" type="image/png" href="img/favicon.jfif" sizes="32x32">  
+
+  <!-- reutiliza tu CSS principal -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- pequeño CSS adicional específico -->
+  <style>
+    /* estilos del grid de productos */
+    .products-hero {
+      padding: 40px 20px;
+      text-align: center;
+      background: #fff;
+    }
+    .products-grid {
+      max-width: 1200px;
+      margin: 30px auto;
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      padding: 0 20px 60px;
+    }
+    .product-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .product-card:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(0,0,0,0.12); }
+    .product-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+    }
+    .product-card .prod-body {
+      padding: 14px;
+      flex: 1;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .prod-title { font-weight:700; color: #111; margin-bottom:8px; }
+    .prod-short { color: #444; font-size: 14px; margin-bottom:12px; line-height:1.3; }
+    .prod-foot { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .prod-price { font-weight:700; color: var(--rojo); }
+    .prod-link { text-decoration:none; color: #fff; background: var(--rojo); padding:8px 12px; border-radius:8px; font-weight:600; }
+    .loader { text-align:center; padding:40px 0; color:#666; }
+
+    @media (min-width: 1200px) {
+      /* máximo 4 columnas en pantallas muy anchas */
+      .products-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    @media (min-width: 992px) and (max-width:1199px) {
+      .products-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (min-width: 768px) and (max-width:991px) {
+      .products-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- copia EXACTA del navbar de tu sitio para mantener estilo + funcionalidad -->
+  <header class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo"><img src="img/Logo2.jpg" alt="Compudiego"></a>
+      <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+      <nav class="nav-menu" id="navMenu">
+        <ul>
+          <li><a href="index.html#home">Home</a></li>
+          <li><a href="index.html#quienes">Quienes Somos</a></li>
+          <li><a href="index.html#servicios">Servicios</a></li>
+          <li><a href="productos.html">Productos</a></li>
+          <li><a href="index.html#contacto">Contacto</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="products-hero">
+      <h1>Productos</h1>
+      <p>Explorá nuestros equipos y accesorios. Hacé clic en un producto para ver más detalles.</p>
+    </section>
+
+    <section>
+      <div id="productsGrid" class="products-grid"></div>
+      <div id="productsLoader" class="loader">Cargando productos...</div>
+    </section>
+  </main>
+
+  <!-- footer + whatsapp (idéntico al tuyo) -->
+  <a href="https://wa.me/541150186664" class="whatsapp-btn" target="_blank"><img src="/img/WhatsApp.svg.png" alt=""></a>
+
+  <footer class="footer">
+    <!-- copia de tu footer -->
+    <div class="footer-container">
+      <div class="dato-item"><i class="fas fa-map-marker-alt"></i><p><strong>Dirección</strong><br>Calle 202 N°252, Sourigues, Berazategui</p></div>
+      <div class="dato-item"><i class="fas fa-phone-alt"></i><p><strong>Celular</strong><br>11 5018 6664</p></div>
+      <div class="dato-item"><i class="fas fa-envelope"></i><p><strong>Email</strong><br>compudiego@live.com</p></div>
+      <div class="dato-item"><i class="fas fa-clock"></i><p><strong>Horario</strong><br>Lunes a Viernes 10-19</p></div>
+    </div>
+  </footer>
+
+  <!-- Firebase + products script -->
+  <script type="module">
+    // Firebase v9 (modular) - ajustá la config si querés otra
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOoiijfHGXIuZ5uYzbyL4-BkOgbp-dO58",
+      authDomain: "compudiegopage.firebaseapp.com",
+      projectId: "compudiegopage",
+      storageBucket: "compudiegopage.appspot.com",
+      messagingSenderId: "294790280990",
+      appId: "1:294790280990:web:a1bcf94d1f6014d4dd3b0f",
+      measurementId: "G-BECVH7TMPW"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const grid = document.getElementById('productsGrid');
+    const loader = document.getElementById('productsLoader');
+
+    async function loadProducts() {
+      try {
+        const q = query(collection(db, 'products'), orderBy('createdAt','desc'));
+        const snap = await getDocs(q);
+
+        if (snap.empty) {
+          loader.innerText = 'No hay productos cargados.';
+          return;
+        }
+
+        loader.style.display = 'none';
+
+        snap.forEach(doc => {
+          const data = doc.data();
+          const id = doc.id;
+          const img = (data.images && data.images.length) ? data.images[0] : '/img/placeholder.png';
+          const title = data.title || 'Sin título';
+          const short = data.short || (data.description ? data.description.slice(0,80)+'...' : '');
+          const price = data.price || '';
+
+          const card = document.createElement('article');
+          card.className = 'product-card';
+          card.innerHTML = `
+            <img src="${img}" alt="${title}" loading="lazy">
+            <div class="prod-body">
+              <div>
+                <div class="prod-title">${title}</div>
+                <div class="prod-short">${short}</div>
+              </div>
+              <div class="prod-foot">
+                <div class="prod-price">${price}</div>
+                <a class="prod-link" href="product.html?id=${id}">Ver</a>
+              </div>
+            </div>
+          `;
+          grid.appendChild(card);
+
+          // Hacer la tarjeta clickeable también en cualquier parte
+          card.addEventListener('click', (e) => {
+            // evitar doble navegación si clickean el botón
+            if (!e.target.closest('a')) location.href = `product.html?id=${id}`;
+          });
+        });
+
+      } catch (err) {
+        console.error(err);
+        loader.innerText = 'Error cargando productos.';
+      }
+    }
+
+    loadProducts();
+
+    // menú hamburguesa reutilizando tu lógica si corresponde
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggle = document.getElementById('navToggle');
+      const menu = document.getElementById('navMenu');
+      if(toggle){
+        toggle.addEventListener('click', () => {
+          toggle.classList.toggle('active');
+          menu.classList.toggle('open');
+          document.body.classList.toggle('no-scroll');
+        });
+      }
+    });
+  </script>
+
+  <!-- Font Awesome (iconos del footer) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js" crossorigin="anonymous"></script>
+</body>
+</html>
