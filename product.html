@@ -8,21 +8,65 @@
 
   <link rel="stylesheet" href="css/styles.css">
   <style>
-    .product-wrap { max-width: 1100px; margin: 30px auto; padding: 0 20px; display:flex; gap:30px; }
-    .product-gallery { flex:1; border-radius:12px; overflow:hidden; background:#fff; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
-    .product-gallery img { width:100%; height:420px; object-fit:cover; display:block; }
-    .thumbs { display:flex; gap:8px; padding:12px; overflow-x:auto; }
-    .thumbs img { width:90px; height:64px; object-fit:cover; border-radius:8px; cursor:pointer; }
-    .product-info { flex:1; display:flex; flex-direction:column; }
-    .product-info h1 { margin-bottom:12px; color:var(--rojo); }
-    .product-desc { flex:1; color:#333; line-height:1.6; margin-bottom:18px; }
-    .product-actions { display:flex; gap:12px; align-items:center; }
-    .btn-primary { background:var(--rojo); color:#fff; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:700; }
-    .btn-ghost { border:1px solid #ddd; padding:8px 12px; border-radius:8px; text-decoration:none; color:#333; }
-    @media (max-width:900px) {
-      .product-wrap { flex-direction:column; }
-      .product-gallery img { height:260px; }
-    }
+.product-wrap {
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 0 20px;
+  display: flex;
+  gap: 30px;
+}
+
+.product-gallery {
+  flex: 1;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+/* Imagen principal – se adapta sin zoom excesivo */
+.product-gallery img {
+  width: 100%;
+  height: auto;           /* <<< evita zoom */
+  max-height: 400px;      /* <<< limita altura */
+  object-fit: contain;    /* <<< muestra toda la imagen sin recortar */
+  background: #f7f7f7;    /* fondo para imágenes horizontales */
+  display: block;
+}
+
+/* Miniaturas */
+.thumbs {
+  display: flex;
+  gap: 10px;
+  padding: 12px;
+  overflow-x: auto;
+}
+
+.thumbs img {
+  width: 80px;
+  height: auto;           /* <<< mantiene proporción, no se estira */
+  aspect-ratio: 4 / 3;    /* <<< mantiene forma coherente */
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* En móviles */
+@media (max-width: 900px) {
+  .product-wrap {
+    flex-direction: column;
+  }
+
+  .product-gallery img {
+    max-height: 300px;   /* más chico para celular */
+  }
+
+  .thumbs img {
+    width: 70px;
+    aspect-ratio: 4 / 3;
+  }
+}
+
   </style>
 </head>
 <body>
