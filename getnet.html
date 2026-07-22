@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Getnet - Plan Emisor</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .card {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            max-width: 480px;
+            width: 100%;
+        }
+        h2 {
+            margin-top: 0;
+            color: #1a1a1a;
+            text-align: center;
+            font-size: 22px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #444;
+            font-size: 14px;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .info-badge {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+            display: block;
+        }
+        .results {
+            margin-top: 25px;
+            padding: 18px;
+            background-color: #e8f5e9;
+            border-left: 6px solid #2e7d32;
+            border-radius: 6px;
+        }
+        .results p {
+            margin: 8px 0;
+            font-size: 15px;
+            color: #2e7d32;
+        }
+        .highlight {
+            font-size: 22px;
+            font-weight: bold;
+            color: #1b5e20;
+            margin-top: 10px !important;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #c8e6c9;
+            padding-bottom: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Calculadora Getnet (Plan Emisor)</h2>
+    
+    <div class="form-group">
+        <label for="montoLimpio">Monto deseado a recibir ($):</label>
+        <input type="number" id="montoLimpio" placeholder="Ej: 959000" value="959000" oninput="calcular()">
+    </div>
+
+    <div class="form-group">
+        <label for="cuotas">Planes de Cuotas:</label>
+        <select id="cuotas" onchange="calcular()">
+            <option value="3">3 Cuotas (Tasa directa 7.41%)</option>
+            <option value="6">6 Cuotas (Tasa directa 12.64%)</option>
+            <option value="12">12 Cuotas (Tasa directa 23.72%)</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="diaCobro">Día de la venta / Acreditación:</label>
+        <select id="diaCobro" onchange="calcular()">
+            <option value="2">Lunes a Miércoles (2 días hábiles)</option>
+            <option value="3">Jueves (3 días hábiles - Acredita Lunes)</option>
+            <option value="4">Viernes (4 días hábiles - Acredita Martes)</option>
+            <option value="custom">Manual (Ingresar días de adelanto)</option>
+        </select>
+    </div>
+
+    <div class="form-group" id="groupDiasManual" style="display: none;">
+        <label for="diasManual">Cantidad de días de adelanto:</label>
+        <input type="number" id="diasManual" value="2" min="1" max="30" oninput="calcular()">
+    </div>
+
+    <div class="results">
+        <div class="detail-row">
+            <span>Días de adelanto aplicados:</span>
+            <strong id="diasAplicados">2 días</strong>
+        </div>
+        <div class="detail-row" style="margin-top:6px;">
+            <span>Retención Total (con IVA):</span>
+            <strong id="porcentajeTotal">0%</strong>
+        </div>
+        
+        <p class="highlight">Precio a Cobrar: $<span id="precioCobrar">0.00</span></p>
+        <p style="font-weight: 600;">Valor por Cuota: $<span id="valorCuota">0.00</span></p>
+    </div>
+</div>
+
+<script>
+    function calcular() {
+        const montoLimpio = parseFloat(document.getElementById('montoLimpio').value) || 0;
+        const cuotas = parseInt(document.getElementById('cuotas').value);
+        const selectorDia = document.getElementById('diaCobro').value;
+        const groupDiasManual = document.getElementById('groupDiasManual');
+
+        if (montoLimpio <= 0) {
+            document.getElementById('porcentajeTotal').innerText = '0%';
+            document.getElementById('precioCobrar').innerText = '0.00';
+            document.getElementById('valorCuota').innerText = '0.00';
+            return;
+        }
+
+        // 1. Determinar Días de Adelanto
+        let diasAdelanto = 2;
+        if (selectorDia === 'custom') {
+            groupDiasManual.style.display = 'block';
+            diasAdelanto = parseFloat(document.getElementById('diasManual').value) || 0;
+        } else {
+            groupDiasManual.style.display = 'none';
+            diasAdelanto = parseFloat(selectorDia);
+        }
+
+        document.getElementById('diasAplicados').innerText = diasAdelanto + ' días';
+
+        // 2. Tasa Directa de Financiación según cuotas
+        let tasaDirecta = 0;
+        if (cuotas === 3) tasaDirecta = 7.41;
+        else if (cuotas === 6) tasaDirecta = 12.64;
+        else if (cuotas === 12) tasaDirecta = 23.72;
+
+        // 3. IVA Financiación (21%)
+        let financiacionConIVA = tasaDirecta * 1.21;
+
+        // 4. Costo Getnet Base (2% + 21% IVA = 2.42%)
+        let getnetBaseConIVA = 2.0 * 1.21;
+
+        // 5. Costo Adelanto (0.53% x días + 21% IVA)
+        let adelantoConIVA = (0.53 * diasAdelanto) * 1.21;
+
+        // 6. Porcentaje Total Acumulado de Retención
+        let retencionTotal = financiacionConIVA + getnetBaseConIVA + adelantoConIVA;
+
+        // 7. Fórmula por División para Acreditación Limpia
+        let divisor = 1 - (retencionTotal / 100);
+        let precioCobrar = montoLimpio / divisor;
+        let valorCuota = precioCobrar / cuotas;
+
+        // Mostrar Resultados
+        document.getElementById('porcentajeTotal').innerText = retencionTotal.toFixed(3) + '%';
+        document.getElementById('precioCobrar').innerText = precioCobrar.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        document.getElementById('valorCuota').innerText = valorCuota.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Ejecución inicial
+    calcular();
+</script>
+
+</body>
+</html>
